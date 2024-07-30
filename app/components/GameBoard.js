@@ -28,6 +28,7 @@ const GameBoard = () => {
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
 	const [showPickerModal, setShowPickerModal] = useState(false);
+	const [gameContainerWidth, setGameContainerWidth] = useState(width);
 	const modalRef = useRef(null);
 	const inputRefs = useRef({});
 	const [focusDirection, setFocusDirection] = useState("across");
@@ -138,6 +139,7 @@ const GameBoard = () => {
 		}
 		return !levels[currentLevel].grid[row][col].empty;
 	};
+
 	const handleTouchStart = (clueUrl, e) => {
 		e.stopPropagation();
 		console.log("Clue URL:", clueUrl); // Log clue URL to verify path
@@ -153,9 +155,12 @@ const GameBoard = () => {
 	const renderCell = (cell, rowIndex, colIndex) => {
 		const position = `${rowIndex}-${colIndex}`;
 		const clueUrl = cell.clue ? levels[currentLevel].clues[cell.clue] : null;
+		const cellSize = gameContainerWidth / 6;
 		let cellStyle = {
 			borderColor: "#ccc",
 			borderWidth: 1,
+			width: cellSize, // Set cell width dynamically
+			height: cellSize, // Set cell height dynamically
 		};
 
 		let cellClassNames = "letter-cell";
@@ -170,8 +175,8 @@ const GameBoard = () => {
 		}
 
 		if (cell.clue) {
-			const clueColor = getClueColor(clueUrl);
-			cellStyle.borderColor = clueColor;
+			const clueColor = getClueColor(cell.clue);
+			cellStyle.backgroundColor = clueColor; // Set background color instead of border color
 
 			return (
 				<TouchableOpacity
@@ -240,7 +245,12 @@ const GameBoard = () => {
 				title="Select Level"
 				onPress={() => setShowPickerModal(true)}
 			/>
-			<View style={styles.gameContainer}>
+			<View
+				style={styles.gameContainer}
+				onLayout={(event) => {
+					const { width } = event.nativeEvent.layout;
+					setGameContainerWidth(width);
+				}}>
 				{confettiActive && <Confetti />}
 				<Text style={styles.levelTitle}>{levels[currentLevel].title}</Text>
 				<FlatList
@@ -248,7 +258,7 @@ const GameBoard = () => {
 					renderItem={({ item: row, index: rowIndex }) => (
 						<View
 							key={rowIndex}
-							style={{ flexDirection: "row" }}>
+							style={{ flexDirection: "row", width: "100%" }}>
 							{row.map((cell, colIndex) =>
 								renderCell(cell, rowIndex, colIndex)
 							)}
@@ -256,6 +266,7 @@ const GameBoard = () => {
 					)}
 					keyExtractor={(item, index) => index.toString()}
 				/>
+
 				{showClueModal && (
 					<Modal
 						transparent={true}
@@ -279,13 +290,19 @@ const GameBoard = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "lightgray",
+		backgroundColor: "green",
 		padding: 10,
+		margin: 0,
+		width: "100%",
 	},
 	gameContainer: {
 		flex: 1,
+		width: "100%", // Ensure it takes the full width
 		justifyContent: "center",
 		alignItems: "center",
+		padding: 0, // Ensure no padding
+		margin: 0, // Ensure no margin
+		backgroundColor: "pink",
 	},
 	pickerModal: {
 		flex: 1,
@@ -321,22 +338,16 @@ const styles = StyleSheet.create({
 	},
 	clueCell: {
 		backgroundColor: "lightblue",
-		width: width * 0.1, // Adjust size relative to screen width
-		height: width * 0.1,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	emptyCell: {
 		backgroundColor: "gray", // Change to grey
-		width: width * 0.1, // Adjust size relative to screen width
-		height: width * 0.1,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	letterCell: {
 		backgroundColor: "white",
-		width: width * 0.1, // Adjust size relative to screen width
-		height: width * 0.1,
 		justifyContent: "center",
 		alignItems: "center",
 	},

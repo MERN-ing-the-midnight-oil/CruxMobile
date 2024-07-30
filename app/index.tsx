@@ -27,10 +27,16 @@ const App = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		padding: 10,
+		width: '100%', // Ensure it takes the full width
+		justifyContent: 'center',
+		alignItems: 'center',
+		padding: 0,
+		margin: 0,
+		backgroundColor: 'red', // For debugging
 	},
 	introductionContainer: {
 		marginBottom: 20,
+		width: '100%', // Ensure it takes the full width
 	},
 });
 
