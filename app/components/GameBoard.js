@@ -8,8 +8,8 @@ import {
 	Modal,
 	Image,
 	FlatList,
-	Dimensions,
 	Button,
+	Dimensions,
 } from "react-native";
 import Confetti from "react-native-confetti";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,23 +18,23 @@ import level1 from "../data/level1";
 import level2 from "../data/level2";
 import { getClueColor } from "../utils/getClueColor";
 import { checkWordCompletion } from "../utils/checkWordCompletion";
+import { createCluePaths } from "../utils/cluePathGenerator"; // Import the utility
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const GameBoard = () => {
 	const levels = { level1, level2 };
 	const [currentLevel, setCurrentLevel] = useState("level1");
 	const [guesses, setGuesses] = useState({});
+	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
-	const [showPickerModal, setShowPickerModal] = useState(false);
-	const [gameContainerWidth, setGameContainerWidth] = useState(width);
-	const modalRef = useRef(null);
-	const inputRefs = useRef({});
+	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
 	const [confettiActive, setConfettiActive] = useState(false);
-	const [confettiOrigin, setConfettiOrigin] = useState({ x: 0.5, y: 0.5 });
 	const [sparklingCells, setSparklingCells] = useState({});
+	const inputRefs = useRef({});
+	const [cluePaths, setCluePaths] = useState({});
 
 	useEffect(() => {
 		const loadGuesses = async () => {
@@ -58,16 +58,21 @@ const GameBoard = () => {
 		saveGuesses();
 	}, [guesses, currentLevel]);
 
+	useEffect(() => {
+		const numClues = levels[currentLevel].clues
+			? Object.keys(levels[currentLevel].clues).length
+			: 0;
+		setCluePaths(createCluePaths(currentLevel, numClues)); // Generate clue paths
+	}, [currentLevel]);
+
 	const handleLevelChange = (value) => {
 		setCurrentLevel(value);
 		setGuesses({});
-		inputRefs.current = {};
 		setShowPickerModal(false);
 	};
 
-	const handleInputChange = (position, value) => {
-		const newGuess = value.toUpperCase().slice(0, 1);
-		const existingGuess = guesses[position] || "";
+	const handleInputChange = (position, text) => {
+		const newGuess = text.toUpperCase().slice(-1); // Get the last typed character
 
 		setGuesses((prevGuesses) => ({
 			...prevGuesses,
@@ -75,30 +80,37 @@ const GameBoard = () => {
 		}));
 		moveFocus(position);
 
-		if (newGuess !== existingGuess) {
-			const [rowIndex, colIndex] = position.split("-").map(Number);
-			const correct =
-				levels[currentLevel].grid[rowIndex][colIndex].letter === newGuess;
-			if (correct) {
-				const wordCompleted = checkWordCompletion(
-					levels[currentLevel].grid,
-					guesses,
-					position
-				);
-				if (wordCompleted) {
-					setSparklingCells((prevCells) => ({
-						...prevCells,
-						[position]: true,
-					}));
-					setTimeout(() => {
-						setSparklingCells((prevCells) => {
-							const updatedCells = { ...prevCells };
-							delete updatedCells[position];
-							return updatedCells;
-						});
-					}, 10000);
-				}
+		const [rowIndex, colIndex] = position.split("-").map(Number);
+		const correct =
+			levels[currentLevel].grid[rowIndex][colIndex].letter === newGuess;
+		if (correct) {
+			const wordCompleted = checkWordCompletion(
+				levels[currentLevel].grid,
+				guesses,
+				position
+			);
+			if (wordCompleted) {
+				setSparklingCells((prevCells) => ({
+					...prevCells,
+					[position]: true,
+				}));
+				setTimeout(() => {
+					setSparklingCells((prevCells) => {
+						const updatedCells = { ...prevCells };
+						delete updatedCells[position];
+						return updatedCells;
+					});
+				}, 10000);
 			}
+		}
+	};
+
+	const handleFocus = (position) => {
+		if (guesses[position]) {
+			setGuesses((prevGuesses) => ({
+				...prevGuesses,
+				[position]: "",
+			}));
 		}
 	};
 
@@ -140,10 +152,9 @@ const GameBoard = () => {
 		return !levels[currentLevel].grid[row][col].empty;
 	};
 
-	const handleTouchStart = (clueUrl, e) => {
+	const handleTouchStart = (clueKey, e) => {
 		e.stopPropagation();
-		console.log("Clue URL:", clueUrl); // Log clue URL to verify path
-		setCurrentClueUrl(clueUrl);
+		setCurrentClueUrl(cluePaths[clueKey]);
 		setShowClueModal(true);
 	};
 
@@ -154,47 +165,30 @@ const GameBoard = () => {
 
 	const renderCell = (cell, rowIndex, colIndex) => {
 		const position = `${rowIndex}-${colIndex}`;
-		const clueUrl = cell.clue ? levels[currentLevel].clues[cell.clue] : null;
 		const cellSize = gameContainerWidth / 6;
 		let cellStyle = {
 			borderColor: "#ccc",
 			borderWidth: 1,
-			width: cellSize, // Set cell width dynamically
-			height: cellSize, // Set cell height dynamically
+			width: cellSize,
+			height: cellSize,
 		};
 
-		let cellClassNames = "letter-cell";
-		let inputClassNames = "";
-
-		if (guesses[position] === cell.letter) {
-			inputClassNames += " correct";
-		}
-
-		if (sparklingCells[position]) {
-			cellClassNames += " sparkle";
-		}
-
 		if (cell.clue) {
-			const clueColor = getClueColor(cell.clue);
-			cellStyle.backgroundColor = clueColor; // Set background color instead of border color
-
+			cellStyle.backgroundColor = getClueColor(cell.clue);
 			return (
 				<TouchableOpacity
 					key={position}
 					style={[styles.clueCell, cellStyle]}
-					onPressIn={(e) => handleTouchStart(clueUrl, e)}
+					onPressIn={(e) => handleTouchStart(cell.clue, e)}
 					onPressOut={handleTouchEnd}
-					onLongPress={(e) => e.preventDefault()}>
-					<View />
-				</TouchableOpacity>
+				/>
 			);
 		} else if (cell.empty) {
 			return (
 				<View
 					key={position}
-					style={[styles.emptyCell, cellStyle]}>
-					<View />
-				</View>
+					style={[styles.emptyCell, cellStyle]}
+				/>
 			);
 		} else {
 			return (
@@ -206,6 +200,7 @@ const GameBoard = () => {
 						maxLength={1}
 						value={guesses[position] || ""}
 						onChangeText={(text) => handleInputChange(position, text)}
+						onFocus={() => handleFocus(position)}
 						style={styles.input}
 					/>
 				</View>
@@ -224,8 +219,17 @@ const GameBoard = () => {
 					<View style={styles.pickerModal}>
 						<Picker
 							selectedValue={currentLevel}
-							onValueChange={(itemValue) => handleLevelChange(itemValue)}
+							onValueChange={(value) => {
+								if (value) {
+									handleLevelChange(value);
+								}
+							}}
 							style={styles.picker}>
+							<Picker.Item
+								label="Select Level"
+								value=""
+								color="#999"
+							/>
 							{Object.keys(levels).map((level) => (
 								<Picker.Item
 									key={level}
@@ -234,6 +238,7 @@ const GameBoard = () => {
 								/>
 							))}
 						</Picker>
+
 						<Button
 							title="Close"
 							onPress={() => setShowPickerModal(false)}
@@ -266,7 +271,6 @@ const GameBoard = () => {
 					)}
 					keyExtractor={(item, index) => index.toString()}
 				/>
-
 				{showClueModal && (
 					<Modal
 						transparent={true}
@@ -292,16 +296,13 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: "green",
 		padding: 10,
-		margin: 0,
 		width: "100%",
 	},
 	gameContainer: {
 		flex: 1,
-		width: "100%", // Ensure it takes the full width
+		width: "100%",
 		justifyContent: "center",
 		alignItems: "center",
-		padding: 0, // Ensure no padding
-		margin: 0, // Ensure no margin
 		backgroundColor: "pink",
 	},
 	pickerModal: {
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
 		padding: 20,
 	},
 	picker: {
-		height: 200, // Increased height for better interaction
+		height: 200,
 		width: "100%",
 		backgroundColor: "lightgreen",
 		marginBottom: 20,
@@ -320,29 +321,20 @@ const styles = StyleSheet.create({
 		padding: 10,
 		borderWidth: 1,
 		borderColor: "#ccc",
-		elevation: 5,
-		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.25,
-		shadowRadius: 3.84,
-		justifyContent: "center",
-		alignItems: "center",
-		overflow: "hidden", // Hide overflow to contain the selection box
 	},
 	levelTitle: {
 		fontSize: 24,
 		fontWeight: "bold",
 		textAlign: "center",
-		marginTop: 10, // Add margin to create space above the title
+		marginTop: 10,
 		marginBottom: 20,
 	},
 	clueCell: {
-		backgroundColor: "lightblue",
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	emptyCell: {
-		backgroundColor: "gray", // Change to grey
+		backgroundColor: "gray",
 		justifyContent: "center",
 		alignItems: "center",
 	},
