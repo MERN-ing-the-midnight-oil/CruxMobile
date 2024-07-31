@@ -7,8 +7,8 @@ import {
 	StyleSheet,
 	Modal,
 	Image,
-	FlatList,
 	Button,
+	FlatList,
 	Dimensions,
 } from "react-native";
 import Confetti from "react-native-confetti";
@@ -18,13 +18,13 @@ import level1 from "../data/level1";
 import level2 from "../data/level2";
 import { getClueColor } from "../utils/getClueColor";
 import { checkWordCompletion } from "../utils/checkWordCompletion";
-import { createCluePaths } from "../utils/cluePathGenerator"; // Import the utility
+import { createCluePaths } from "../utils/cluePathGenerator"; // Corrected import path
 
 const { width } = Dimensions.get("window");
 
 const GameBoard = () => {
 	const levels = { level1, level2 };
-	const [currentLevel, setCurrentLevel] = useState("level1");
+	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
@@ -59,10 +59,12 @@ const GameBoard = () => {
 	}, [guesses, currentLevel]);
 
 	useEffect(() => {
-		const numClues = levels[currentLevel].clues
-			? Object.keys(levels[currentLevel].clues).length
-			: 0;
-		setCluePaths(createCluePaths(currentLevel, numClues)); // Generate clue paths
+		if (currentLevel) {
+			const numClues = levels[currentLevel].clues
+				? Object.keys(levels[currentLevel].clues).length
+				: 0;
+			setCluePaths(createCluePaths(currentLevel, numClues)); // Generate clue paths
+		}
 	}, [currentLevel]);
 
 	const handleLevelChange = (value) => {
@@ -156,6 +158,7 @@ const GameBoard = () => {
 		e.stopPropagation();
 		setCurrentClueUrl(cluePaths[clueKey]);
 		setShowClueModal(true);
+		console.log("Clue URL:", cluePaths[clueKey]); // Log clue URL to verify path
 	};
 
 	const handleTouchEnd = (e) => {
@@ -208,6 +211,18 @@ const GameBoard = () => {
 		}
 	};
 
+	const renderHeader = () => (
+		<View style={styles.header}>
+			<Button
+				title="Select Level"
+				onPress={() => setShowPickerModal(true)}
+			/>
+			{currentLevel && (
+				<Text style={styles.levelTitle}>{levels[currentLevel].title}</Text>
+			)}
+		</View>
+	);
+
 	return (
 		<View style={styles.container}>
 			{showPickerModal && (
@@ -238,7 +253,6 @@ const GameBoard = () => {
 								/>
 							))}
 						</Picker>
-
 						<Button
 							title="Close"
 							onPress={() => setShowPickerModal(false)}
@@ -246,47 +260,38 @@ const GameBoard = () => {
 					</View>
 				</Modal>
 			)}
-			<Button
-				title="Select Level"
-				onPress={() => setShowPickerModal(true)}
-			/>
-			<View
-				style={styles.gameContainer}
+			<FlatList
+				ListHeaderComponent={renderHeader}
+				data={levels[currentLevel]?.grid || []}
+				renderItem={({ item: row, index: rowIndex }) => (
+					<View
+						key={rowIndex}
+						style={{ flexDirection: "row", width: "100%" }}>
+						{row.map((cell, colIndex) => renderCell(cell, rowIndex, colIndex))}
+					</View>
+				)}
+				keyExtractor={(item, index) => index.toString()}
+				contentContainerStyle={styles.gameContainer}
 				onLayout={(event) => {
 					const { width } = event.nativeEvent.layout;
 					setGameContainerWidth(width);
-				}}>
-				{confettiActive && <Confetti />}
-				<Text style={styles.levelTitle}>{levels[currentLevel].title}</Text>
-				<FlatList
-					data={levels[currentLevel].grid}
-					renderItem={({ item: row, index: rowIndex }) => (
-						<View
-							key={rowIndex}
-							style={{ flexDirection: "row", width: "100%" }}>
-							{row.map((cell, colIndex) =>
-								renderCell(cell, rowIndex, colIndex)
-							)}
-						</View>
-					)}
-					keyExtractor={(item, index) => index.toString()}
-				/>
-				{showClueModal && (
-					<Modal
-						transparent={true}
-						animationType="slide"
-						visible={showClueModal}
-						onRequestClose={() => setShowClueModal(false)}>
-						<View style={styles.modalView}>
-							<Image
-								source={{ uri: currentClueUrl }}
-								style={styles.modalImage}
-								resizeMode="contain"
-							/>
-						</View>
-					</Modal>
-				)}
-			</View>
+				}}
+			/>
+			{showClueModal && (
+				<Modal
+					transparent={true}
+					animationType="slide"
+					visible={showClueModal}
+					onRequestClose={() => setShowClueModal(false)}>
+					<View style={styles.modalView}>
+						<Image
+							source={{ uri: currentClueUrl }}
+							style={styles.modalImage}
+							resizeMode="contain"
+						/>
+					</View>
+				</Modal>
+			)}
 		</View>
 	);
 };
@@ -295,12 +300,14 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: "green",
+		width: "100%",
+	},
+	header: {
+		backgroundColor: "green",
 		padding: 10,
 		width: "100%",
 	},
 	gameContainer: {
-		flex: 1,
-		width: "100%",
 		justifyContent: "center",
 		alignItems: "center",
 		backgroundColor: "pink",
