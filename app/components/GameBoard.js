@@ -41,6 +41,7 @@ const GameBoard = () => {
 			const savedGuesses = await AsyncStorage.getItem(
 				`guesses-${currentLevel}`
 			);
+			console.log("Loaded Guesses:", savedGuesses); // Add this line
 			if (savedGuesses) {
 				setGuesses(JSON.parse(savedGuesses));
 			} else {
@@ -164,6 +165,20 @@ const GameBoard = () => {
 	const handleTouchEnd = (e) => {
 		e.stopPropagation();
 		setShowClueModal(false);
+	};
+
+	const clearStorageForLevel = async (level) => {
+		try {
+			await AsyncStorage.removeItem(`guesses-${level}`);
+			console.log(`AsyncStorage cleared for level ${level}`);
+		} catch (e) {
+			console.error("Failed to clear AsyncStorage", e);
+		}
+	};
+
+	const clearGuesses = async () => {
+		await clearStorageForLevel(currentLevel);
+		setGuesses({});
 	};
 
 	const renderCell = (cell, rowIndex, colIndex) => {
@@ -292,6 +307,10 @@ const GameBoard = () => {
 					</View>
 				</Modal>
 			)}
+			<Button
+				title="Start Over"
+				onPress={clearGuesses}
+			/>
 		</View>
 	);
 };

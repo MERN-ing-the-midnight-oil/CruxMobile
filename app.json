@@ -3,7 +3,6 @@
     "name": "your-app-name",
     "slug": "your-app-slug",
     "version": "1.0.0",
-    "entryPoint": "./app/index.tsx",
     "orientation": "portrait",
     "icon": "./assets/crux_icon.webp",
     "scheme": "cruxmobile",
@@ -31,7 +30,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      "expo-router"
     ]
   }
 }
