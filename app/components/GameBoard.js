@@ -209,6 +209,13 @@ const GameBoard = () => {
 				/>
 			);
 		} else {
+			// Apply green background if the guess is correct
+			const isCorrectGuess =
+				guesses[position] && guesses[position] === cell.letter;
+			if (isCorrectGuess) {
+				cellStyle.backgroundColor = "green";
+			}
+
 			return (
 				<View
 					key={position}
