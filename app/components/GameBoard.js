@@ -26,12 +26,14 @@ const GameBoard = () => {
 	const levels = { level1, level2 };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
+	const [correctAnswers, setCorrectAnswers] = useState({}); // State to track correct answers
 	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null);
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
 	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
+	const [focusedPosition, setFocusedPosition] = useState(null); // Track focused position
 	const inputRefs = useRef({});
 	const [cluePaths, setCluePaths] = useState({});
 
@@ -59,6 +61,32 @@ const GameBoard = () => {
 	}, [guesses, currentLevel]);
 
 	useEffect(() => {
+		const loadCorrectAnswers = async () => {
+			const savedCorrectAnswers = await AsyncStorage.getItem(
+				`correctAnswers-${currentLevel}`
+			);
+			console.log("Loaded Correct Answers:", savedCorrectAnswers);
+			if (savedCorrectAnswers) {
+				setCorrectAnswers(JSON.parse(savedCorrectAnswers));
+			} else {
+				setCorrectAnswers({});
+			}
+		};
+		loadCorrectAnswers();
+	}, [currentLevel]);
+
+	useEffect(() => {
+		const saveCorrectAnswers = async () => {
+			const savedCorrectAnswers = JSON.stringify(correctAnswers);
+			await AsyncStorage.setItem(
+				`correctAnswers-${currentLevel}`,
+				savedCorrectAnswers
+			);
+		};
+		saveCorrectAnswers();
+	}, [correctAnswers, currentLevel]);
+
+	useEffect(() => {
 		if (currentLevel) {
 			const numClues = levels[currentLevel].clues
 				? Object.keys(levels[currentLevel].clues).length
@@ -74,7 +102,10 @@ const GameBoard = () => {
 				levels[currentLevel].grid[rowIndex][colIndex].letter ===
 				guesses[lastUpdatedPosition];
 			if (correct) {
-				// console.log("Checked For Word Completion");
+				setCorrectAnswers((prevCorrectAnswers) => ({
+					...prevCorrectAnswers,
+					[lastUpdatedPosition]: true,
+				}));
 				const wordCompleted = checkWordCompletion(
 					levels[currentLevel].grid,
 					guesses,
@@ -90,11 +121,15 @@ const GameBoard = () => {
 	const handleLevelChange = (value) => {
 		setCurrentLevel(value);
 		setGuesses({});
+		setCorrectAnswers({});
 		setLastUpdatedPosition(null);
 		setShowPickerModal(false);
 	};
 
 	const handleInputChange = (position, text) => {
+		if (correctAnswers[position]) {
+			return; // Don't allow changes to correct answers
+		}
 		const newGuess = text.toUpperCase().slice(-1);
 		console.log(`Input change at ${position}: ${newGuess}`);
 
@@ -111,12 +146,19 @@ const GameBoard = () => {
 	};
 
 	const handleFocus = (position) => {
-		if (guesses[position]) {
+		console.log(`Input focused at ${position}`);
+		setFocusedPosition(position);
+		if (guesses[position] && !correctAnswers[position]) {
 			setGuesses((prevGuesses) => ({
 				...prevGuesses,
 				[position]: "",
 			}));
 		}
+	};
+
+	const handleBlur = (position) => {
+		console.log(`Input blur at ${position}`);
+		setFocusedPosition(null);
 	};
 
 	const moveFocus = (currentPosition) => {
@@ -172,6 +214,7 @@ const GameBoard = () => {
 	const clearStorageForLevel = async (level) => {
 		try {
 			await AsyncStorage.removeItem(`guesses-${level}`);
+			await AsyncStorage.removeItem(`correctAnswers-${level}`);
 			console.log(`AsyncStorage cleared for level ${level}`);
 		} catch (e) {
 			console.error("Failed to clear AsyncStorage", e);
@@ -181,6 +224,7 @@ const GameBoard = () => {
 	const clearGuesses = async () => {
 		await clearStorageForLevel(currentLevel);
 		setGuesses({});
+		setCorrectAnswers({});
 	};
 
 	const renderCell = (cell, rowIndex, colIndex) => {
@@ -230,10 +274,12 @@ const GameBoard = () => {
 							handleInputChange(position, text);
 						}}
 						onFocus={() => handleFocus(position)}
+						onBlur={() => handleBlur(position)}
 						style={styles.input}
 						autoCapitalize="characters" // Keep autoCapitalize as needed
 						autoCorrect={false} // Disable autocorrect
 						keyboardType="default" // Ensure default keyboard type
+						editable={!correctAnswers[position]} // Disable editing for correct answers
 					/>
 				</View>
 			);
