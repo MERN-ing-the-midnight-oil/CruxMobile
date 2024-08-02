@@ -12,14 +12,13 @@ import {
 	Dimensions,
 	Alert,
 } from "react-native";
-import Confetti from "react-native-confetti";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import level1 from "../data/level1";
 import level2 from "../data/level2";
 import { getClueColor } from "../utils/getClueColor";
 import { checkWordCompletion } from "../utils/checkWordCompletion";
-import { createCluePaths } from "../utils/cluePathGenerator"; // Corrected import path
+import { createCluePaths } from "../utils/cluePathGenerator";
 
 const { width } = Dimensions.get("window");
 
@@ -27,7 +26,7 @@ const GameBoard = () => {
 	const levels = { level1, level2 };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
-	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null); // New state
+	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null);
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
@@ -41,7 +40,7 @@ const GameBoard = () => {
 			const savedGuesses = await AsyncStorage.getItem(
 				`guesses-${currentLevel}`
 			);
-			console.log("Loaded Guesses:", savedGuesses); // Add this line
+			console.log("Loaded Guesses:", savedGuesses);
 			if (savedGuesses) {
 				setGuesses(JSON.parse(savedGuesses));
 			} else {
@@ -64,7 +63,7 @@ const GameBoard = () => {
 			const numClues = levels[currentLevel].clues
 				? Object.keys(levels[currentLevel].clues).length
 				: 0;
-			setCluePaths(createCluePaths(currentLevel, numClues)); // Generate clue paths
+			setCluePaths(createCluePaths(currentLevel, numClues));
 		}
 	}, [currentLevel]);
 
@@ -75,7 +74,7 @@ const GameBoard = () => {
 				levels[currentLevel].grid[rowIndex][colIndex].letter ===
 				guesses[lastUpdatedPosition];
 			if (correct) {
-				console.log("Checked For Word Completion"); // Log added here
+				// console.log("Checked For Word Completion");
 				const wordCompleted = checkWordCompletion(
 					levels[currentLevel].grid,
 					guesses,
@@ -86,24 +85,28 @@ const GameBoard = () => {
 				}
 			}
 		}
-	}, [guesses, lastUpdatedPosition, currentLevel]); // Trigger check after guesses update
+	}, [guesses, lastUpdatedPosition, currentLevel]);
 
 	const handleLevelChange = (value) => {
 		setCurrentLevel(value);
 		setGuesses({});
-		setLastUpdatedPosition(null); // Reset last updated position
+		setLastUpdatedPosition(null);
 		setShowPickerModal(false);
 	};
 
 	const handleInputChange = (position, text) => {
-		const newGuess = text.toUpperCase().slice(-1); // Get the last typed character
+		const newGuess = text.toUpperCase().slice(-1);
+		console.log(`Input change at ${position}: ${newGuess}`);
 
-		setGuesses((prevGuesses) => ({
-			...prevGuesses,
-			[position]: newGuess,
-		}));
-		setLastUpdatedPosition(position); // Update last position
-
+		setGuesses((prevGuesses) => {
+			const updatedGuesses = {
+				...prevGuesses,
+				[position]: newGuess,
+			};
+			console.log(`Updated guesses: ${JSON.stringify(updatedGuesses)}`);
+			return updatedGuesses;
+		});
+		setLastUpdatedPosition(position);
 		moveFocus(position);
 	};
 
@@ -158,7 +161,7 @@ const GameBoard = () => {
 		e.stopPropagation();
 		setCurrentClueUrl(cluePaths[clueKey]);
 		setShowClueModal(true);
-		console.log("Clue URL:", cluePaths[clueKey]); // Log clue URL to verify path
+		console.log("Clue URL:", cluePaths[clueKey]);
 	};
 
 	const handleTouchEnd = (e) => {
@@ -208,7 +211,6 @@ const GameBoard = () => {
 				/>
 			);
 		} else {
-			// Apply green background if the guess is correct
 			const isCorrectGuess =
 				guesses[position] && guesses[position] === cell.letter;
 			if (isCorrectGuess) {
@@ -223,9 +225,15 @@ const GameBoard = () => {
 						ref={(el) => (inputRefs.current[position] = el)}
 						maxLength={1}
 						value={guesses[position] || ""}
-						onChangeText={(text) => handleInputChange(position, text)}
+						onChangeText={(text) => {
+							console.log(`Character entered at ${position}: ${text}`);
+							handleInputChange(position, text);
+						}}
 						onFocus={() => handleFocus(position)}
 						style={styles.input}
+						autoCapitalize="characters" // Keep autoCapitalize as needed
+						autoCorrect={false} // Disable autocorrect
+						keyboardType="default" // Ensure default keyboard type
 					/>
 				</View>
 			);
@@ -340,7 +348,7 @@ const styles = StyleSheet.create({
 	pickerModal: {
 		flex: 1,
 		justifyContent: "center",
-		justifyContent: "center",
+		alignItems: "center",
 		backgroundColor: "rgba(0,0,0,0.5)",
 		padding: 20,
 	},
