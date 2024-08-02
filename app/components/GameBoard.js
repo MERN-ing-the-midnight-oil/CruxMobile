@@ -10,6 +10,7 @@ import {
 	Button,
 	FlatList,
 	Dimensions,
+	Alert,
 } from "react-native";
 import Confetti from "react-native-confetti";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -26,13 +27,12 @@ const GameBoard = () => {
 	const levels = { level1, level2 };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
+	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null); // New state
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
 	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
-	const [confettiActive, setConfettiActive] = useState(false);
-	const [sparklingCells, setSparklingCells] = useState({});
 	const inputRefs = useRef({});
 	const [cluePaths, setCluePaths] = useState({});
 
@@ -68,9 +68,30 @@ const GameBoard = () => {
 		}
 	}, [currentLevel]);
 
+	useEffect(() => {
+		if (lastUpdatedPosition) {
+			const [rowIndex, colIndex] = lastUpdatedPosition.split("-").map(Number);
+			const correct =
+				levels[currentLevel].grid[rowIndex][colIndex].letter ===
+				guesses[lastUpdatedPosition];
+			if (correct) {
+				console.log("Checked For Word Completion"); // Log added here
+				const wordCompleted = checkWordCompletion(
+					levels[currentLevel].grid,
+					guesses,
+					lastUpdatedPosition
+				);
+				if (wordCompleted) {
+					Alert.alert("Congratulations!", "You completed a word!");
+				}
+			}
+		}
+	}, [guesses, lastUpdatedPosition, currentLevel]); // Trigger check after guesses update
+
 	const handleLevelChange = (value) => {
 		setCurrentLevel(value);
 		setGuesses({});
+		setLastUpdatedPosition(null); // Reset last updated position
 		setShowPickerModal(false);
 	};
 
@@ -81,31 +102,9 @@ const GameBoard = () => {
 			...prevGuesses,
 			[position]: newGuess,
 		}));
-		moveFocus(position);
+		setLastUpdatedPosition(position); // Update last position
 
-		const [rowIndex, colIndex] = position.split("-").map(Number);
-		const correct =
-			levels[currentLevel].grid[rowIndex][colIndex].letter === newGuess;
-		if (correct) {
-			const wordCompleted = checkWordCompletion(
-				levels[currentLevel].grid,
-				guesses,
-				position
-			);
-			if (wordCompleted) {
-				setSparklingCells((prevCells) => ({
-					...prevCells,
-					[position]: true,
-				}));
-				setTimeout(() => {
-					setSparklingCells((prevCells) => {
-						const updatedCells = { ...prevCells };
-						delete updatedCells[position];
-						return updatedCells;
-					});
-				}, 10000);
-			}
-		}
+		moveFocus(position);
 	};
 
 	const handleFocus = (position) => {
@@ -341,7 +340,7 @@ const styles = StyleSheet.create({
 	pickerModal: {
 		flex: 1,
 		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: "center",
 		backgroundColor: "rgba(0,0,0,0.5)",
 		padding: 20,
 	},
