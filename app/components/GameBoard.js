@@ -165,18 +165,37 @@ const GameBoard = () => {
 		const [row, col] = currentPosition.split("-").map(Number);
 		let nextPosition = getNextPosition(row, col, focusDirection);
 
-		if (!isPositionValid(nextPosition)) {
-			const newDirection = focusDirection === "across" ? "down" : "across";
-			nextPosition = getNextPosition(row, col, newDirection);
-			if (isPositionValid(nextPosition)) {
-				setFocusDirection(newDirection);
+		while (isPositionValid(nextPosition) && correctAnswers[nextPosition]) {
+			// Skip positions that are already correct answers
+			const [nextRow, nextCol] = nextPosition.split("-").map(Number);
+			if (focusDirection === "across") {
+				nextPosition = `${nextRow}-${nextCol + 1}`;
 			} else {
-				return;
+				nextPosition = `${nextRow + 1}-${nextCol}`;
 			}
 		}
 
-		if (inputRefs.current[nextPosition]) {
+		if (isPositionValid(nextPosition) && inputRefs.current[nextPosition]) {
 			inputRefs.current[nextPosition].focus();
+		} else {
+			// If no valid next position, try changing direction
+			const newDirection = focusDirection === "across" ? "down" : "across";
+			nextPosition = getNextPosition(row, col, newDirection);
+
+			while (isPositionValid(nextPosition) && correctAnswers[nextPosition]) {
+				// Skip positions that are already correct answers
+				const [nextRow, nextCol] = nextPosition.split("-").map(Number);
+				if (newDirection === "across") {
+					nextPosition = `${nextRow}-${nextCol + 1}`;
+				} else {
+					nextPosition = `${nextRow + 1}-${nextCol}`;
+				}
+			}
+
+			if (isPositionValid(nextPosition) && inputRefs.current[nextPosition]) {
+				inputRefs.current[nextPosition].focus();
+				setFocusDirection(newDirection); // Change direction
+			}
 		}
 	};
 
