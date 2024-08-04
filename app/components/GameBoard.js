@@ -8,8 +8,10 @@ import {
 	Modal,
 	Image,
 	Button,
+	FlatList,
 	Dimensions,
 	Alert,
+	TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
@@ -20,7 +22,7 @@ import { getClueColor } from "../utils/getClueColor";
 import { checkWordCompletion } from "../utils/checkWordCompletion";
 import { createCluePaths } from "../utils/cluePathGenerator";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const GameBoard = () => {
 	const levels = { level1, level2 };
@@ -316,11 +318,6 @@ const GameBoard = () => {
 		console.log("Clue URL:", cluePaths[clueKey]);
 	};
 
-	const handleTouchEnd = (e) => {
-		e.stopPropagation();
-		setShowClueModal(false);
-	};
-
 	const clearStorageForLevel = async (level) => {
 		try {
 			await AsyncStorage.removeItem(`guesses-${level}`);
@@ -354,7 +351,6 @@ const GameBoard = () => {
 					key={position}
 					style={[styles.clueCell, cellStyle]}
 					onPressIn={(e) => handleTouchStart(cell.clue, e)}
-					onPressOut={handleTouchEnd}
 				/>
 			);
 		} else if (cell.empty) {
@@ -468,20 +464,24 @@ const GameBoard = () => {
 			{showClueModal && (
 				<Modal
 					transparent={true}
-					animationType="slide"
+					animationType="fade"
 					visible={showClueModal}
 					onRequestClose={() => setShowClueModal(false)}>
-					<View style={styles.modalView}>
-						<Image
-							source={{ uri: currentClueUrl }}
-							style={styles.modalImage}
-							resizeMode="contain"
-						/>
-					</View>
+					<TouchableWithoutFeedback onPress={() => setShowClueModal(false)}>
+						<View style={styles.modalBackdrop}>
+							<View style={styles.modalContent}>
+								<Image
+									source={{ uri: currentClueUrl }}
+									style={styles.modalImage}
+									resizeMode="contain"
+								/>
+							</View>
+						</View>
+					</TouchableWithoutFeedback>
 				</Modal>
 			)}
 			<Button
-				title="Start Over"
+				title="Clear All Letters"
 				onPress={clearGuesses}
 			/>
 		</View>
@@ -548,15 +548,24 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		fontSize: 18,
 	},
-	modalView: {
+	modalBackdrop: {
 		flex: 1,
-		alignItems: "center",
 		justifyContent: "center",
+		alignItems: "center",
 		backgroundColor: "rgba(0,0,0,0.5)",
+		padding: 0, // Remove padding
+	},
+	modalContent: {
+		width: "90%",
+		backgroundColor: "white",
+		alignItems: "center",
+		borderRadius: 10,
+		overflow: "hidden", // Ensure image fits within the modal
 	},
 	modalImage: {
-		width: "80%",
-		height: "80%",
+		width: "100%",
+		height: undefined,
+		aspectRatio: 1, // Adjust aspect ratio as needed
 	},
 });
 

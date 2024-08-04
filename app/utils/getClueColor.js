@@ -15,16 +15,26 @@ function simpleHash(str) {
 export function getClueColor(clue) {
 	const hash = simpleHash(clue);
 	const colors = [
-		"#FF6347", // tomato
+		"#00BFFF", // deepskyblue
+		"#5F9EA0", // cadetblue
 		"#4682B4", // steelblue
-		"#FF4500", // orangered
-		"#DA70D6", // orchid
-		"#6495ED", // cornflowerblue
-		"#FFD700", // gold
+		"#7B68EE", // mediumslateblue
 		"#6A5ACD", // slateblue
-		"#FF69B4", // hotpink
-		"#1E90FF", // dodgerblue
+		"#48D1CC", // mediumturquoise
+		"#00CED1", // darkturquoise
+		"#20B2AA", // lightseagreen
+		"#40E0D0", // turquoise
+		"#8B4513", // saddlebrown
+		"#A0522D", // sienna
 		"#D2691E", // chocolate
+		"#CD853F", // peru
+		"#BC8F8F", // rosybrown
+		"#F4A460", // sandybrown
+		"#D2B48C", // tan
+		"#8FBC8F", // darkseagreen
+		"#556B2F", // darkolivegreen
+		"#FF6347", // tomato
+		"#4682B4", // steelblue (used for good contrast)
 	];
 	return colors[hash % colors.length];
 }
