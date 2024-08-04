@@ -8,12 +8,12 @@ import {
 	Modal,
 	Image,
 	Button,
-	FlatList,
 	Dimensions,
 	Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
+import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import level1 from "../data/level1";
 import level2 from "../data/level2";
 import { getClueColor } from "../utils/getClueColor";
@@ -448,7 +448,7 @@ const GameBoard = () => {
 					</View>
 				</Modal>
 			)}
-			<FlatList
+			<KeyboardAwareFlatList
 				ListHeaderComponent={renderHeader}
 				data={levels[currentLevel]?.grid || []}
 				renderItem={({ item: row, index: rowIndex }) => (
