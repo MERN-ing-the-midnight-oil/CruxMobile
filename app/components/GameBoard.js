@@ -21,6 +21,7 @@ import level2 from "../data/level2";
 import { getClueColor } from "../utils/getClueColor";
 import { checkWordCompletion } from "../utils/checkWordCompletion";
 import { createCluePaths } from "../utils/cluePathGenerator";
+import { getClueCellStyle } from "../utils/clueCellStyle";
 
 const { width, height } = Dimensions.get("window");
 
@@ -345,7 +346,10 @@ const GameBoard = () => {
 		};
 
 		if (cell.clue) {
-			cellStyle.backgroundColor = getClueColor(cell.clue);
+			cellStyle = {
+				...cellStyle,
+				...getClueCellStyle(levels[currentLevel].grid, rowIndex, colIndex),
+			};
 			return (
 				<TouchableOpacity
 					key={position}
@@ -481,7 +485,7 @@ const GameBoard = () => {
 				</Modal>
 			)}
 			<Button
-				title="Clear All Letters"
+				title="Start Over"
 				onPress={clearGuesses}
 			/>
 		</View>
