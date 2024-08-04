@@ -113,6 +113,7 @@ const GameBoard = () => {
 				);
 				if (wordCompleted) {
 					Alert.alert("Congratulations!", "You completed a word!");
+					console.log("Congratulations! You completed a word!");
 				}
 			}
 		}
@@ -130,19 +131,40 @@ const GameBoard = () => {
 		if (correctAnswers[position]) {
 			return; // Don't allow changes to correct answers
 		}
-		const newGuess = text.toUpperCase().slice(-1);
-		console.log(`Input change at ${position}: ${newGuess}`);
+		const newGuess = text.toUpperCase();
+		if (newGuess === "") {
+			// Handle backspace
+			console.log(`Delete key was pushed at ${position}`);
+			setGuesses((prevGuesses) => {
+				const updatedGuesses = { ...prevGuesses };
+				delete updatedGuesses[position];
+				return updatedGuesses;
+			});
+			moveFocusAndDelete(position);
+		} else {
+			setGuesses((prevGuesses) => {
+				const updatedGuesses = {
+					...prevGuesses,
+					[position]: newGuess.slice(-1),
+				};
+				console.log(`Updated guesses: ${JSON.stringify(updatedGuesses)}`);
+				return updatedGuesses;
+			});
+			setLastUpdatedPosition(position);
+			moveFocus(position, "forward");
+		}
+	};
 
-		setGuesses((prevGuesses) => {
-			const updatedGuesses = {
-				...prevGuesses,
-				[position]: newGuess,
-			};
-			console.log(`Updated guesses: ${JSON.stringify(updatedGuesses)}`);
-			return updatedGuesses;
-		});
-		setLastUpdatedPosition(position);
-		moveFocus(position);
+	const handleKeyPress = (position, key) => {
+		if (key === "Backspace") {
+			console.log(`Backspace key was pushed at ${position}`);
+			setGuesses((prevGuesses) => {
+				const updatedGuesses = { ...prevGuesses };
+				delete updatedGuesses[position];
+				return updatedGuesses;
+			});
+			moveFocusAndDelete(position);
+		}
 	};
 
 	const handleFocus = (position) => {
@@ -161,49 +183,118 @@ const GameBoard = () => {
 		setFocusedPosition(null);
 	};
 
-	const moveFocus = (currentPosition) => {
+	const moveFocusAndDelete = (currentPosition) => {
+		let [row, col] = currentPosition.split("-").map(Number);
+
+		const deleteCharacter = (pos) => {
+			setGuesses((prevGuesses) => {
+				const updatedGuesses = { ...prevGuesses };
+				delete updatedGuesses[pos];
+				return updatedGuesses;
+			});
+		};
+
+		const moveFocus = (newPosition) => {
+			if (isPositionValid(newPosition) && inputRefs.current[newPosition]) {
+				console.log(`Focusing on position ${newPosition}`);
+				inputRefs.current[newPosition].focus();
+				return newPosition;
+			}
+			return null;
+		};
+
+		const directions =
+			focusDirection === "across" ? ["left", "up"] : ["up", "left"];
+		for (let direction of directions) {
+			let nextPosition =
+				direction === "left" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
+			while (isPositionValid(nextPosition)) {
+				const [nextRow, nextCol] = nextPosition.split("-").map(Number);
+				if (!correctAnswers[nextPosition] && guesses[nextPosition]) {
+					deleteCharacter(nextPosition);
+					const newPos = moveFocus(nextPosition);
+					if (newPos) {
+						row = nextRow;
+						col = nextCol;
+					} else {
+						break;
+					}
+				} else {
+					break;
+				}
+				nextPosition =
+					direction === "left" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
+			}
+		}
+	};
+
+	const moveFocus = (currentPosition, direction = "forward") => {
 		const [row, col] = currentPosition.split("-").map(Number);
-		let nextPosition = getNextPosition(row, col, focusDirection);
+		let nextPosition = getNextPosition(row, col, focusDirection, direction);
+
+		console.log(
+			`Trying to move focus ${direction} from ${currentPosition} to ${nextPosition}`
+		);
 
 		while (isPositionValid(nextPosition) && correctAnswers[nextPosition]) {
 			// Skip positions that are already correct answers
 			const [nextRow, nextCol] = nextPosition.split("-").map(Number);
 			if (focusDirection === "across") {
-				nextPosition = `${nextRow}-${nextCol + 1}`;
+				nextPosition =
+					direction === "forward"
+						? `${nextRow}-${nextCol + 1}`
+						: `${nextRow}-${nextCol - 1}`;
 			} else {
-				nextPosition = `${nextRow + 1}-${nextCol}`;
+				nextPosition =
+					direction === "forward"
+						? `${nextRow + 1}-${nextCol}`
+						: `${nextRow - 1}-${nextCol}`;
 			}
+			console.log(`Skipping correct answer, next position: ${nextPosition}`);
 		}
 
 		if (isPositionValid(nextPosition) && inputRefs.current[nextPosition]) {
+			console.log(`Focusing on position ${nextPosition}`);
 			inputRefs.current[nextPosition].focus();
 		} else {
 			// If no valid next position, try changing direction
 			const newDirection = focusDirection === "across" ? "down" : "across";
-			nextPosition = getNextPosition(row, col, newDirection);
+			nextPosition = getNextPosition(row, col, newDirection, direction);
 
 			while (isPositionValid(nextPosition) && correctAnswers[nextPosition]) {
 				// Skip positions that are already correct answers
 				const [nextRow, nextCol] = nextPosition.split("-").map(Number);
 				if (newDirection === "across") {
-					nextPosition = `${nextRow}-${nextCol + 1}`;
+					nextPosition =
+						direction === "forward"
+							? `${nextRow}-${nextCol + 1}`
+							: `${nextRow}-${nextCol - 1}`;
 				} else {
-					nextPosition = `${nextRow + 1}-${nextCol}`;
+					nextPosition =
+						direction === "forward"
+							? `${nextRow + 1}-${nextCol}`
+							: `${nextRow - 1}-${nextCol}`;
 				}
+				console.log(`Skipping correct answer, next position: ${nextPosition}`);
 			}
 
 			if (isPositionValid(nextPosition) && inputRefs.current[nextPosition]) {
+				console.log(`Focusing on position ${nextPosition}`);
 				inputRefs.current[nextPosition].focus();
 				setFocusDirection(newDirection); // Change direction
 			}
 		}
 	};
 
-	const getNextPosition = (row, col, direction) => {
+	const getNextPosition = (row, col, direction, moveDirection) => {
 		if (direction === "across") {
-			return `${row}-${col + 1}`;
+			return moveDirection === "forward"
+				? `${row}-${col + 1}`
+				: `${row}-${col - 1}`;
 		} else {
-			return `${row + 1}-${col}`;
+			return moveDirection === "forward"
+				? `${row + 1}-${col}`
+				: `${row - 1}-${col}`;
 		}
 	};
 
@@ -292,6 +383,9 @@ const GameBoard = () => {
 							console.log(`Character entered at ${position}: ${text}`);
 							handleInputChange(position, text);
 						}}
+						onKeyPress={({ nativeEvent: { key } }) =>
+							handleKeyPress(position, key)
+						}
 						onFocus={() => handleFocus(position)}
 						onBlur={() => handleBlur(position)}
 						style={styles.input}
