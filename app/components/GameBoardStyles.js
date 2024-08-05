@@ -1,4 +1,3 @@
-// app/components/GameBoardStyles.js
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
 		color: "#333", // Darker color for input text
 	},
 	correctGuessCell: {
-		backgroundColor: "#00FA9A", // Lighter green for correct guesses
+		backgroundColor: "#32CD32", // Medium green for correct guesses
 	},
 	modalBackdrop: {
 		flex: 1,

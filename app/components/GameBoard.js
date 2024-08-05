@@ -24,22 +24,23 @@ import { createCluePaths } from "../utils/cluePathGenerator";
 import { getClueCellStyle } from "../utils/clueCellStyle";
 import styles from "./GameBoardStyles"; // Ensure correct import path
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const GameBoard = () => {
 	const levels = { level1, level2 };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
-	const [correctAnswers, setCorrectAnswers] = useState({}); // State to track correct answers
+	const [correctAnswers, setCorrectAnswers] = useState({});
 	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null);
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
 	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
-	const [focusedPosition, setFocusedPosition] = useState(null); // Track focused position
+	const [focusedPosition, setFocusedPosition] = useState(null);
 	const inputRefs = useRef({});
 	const [cluePaths, setCluePaths] = useState({});
+	const [currentClueColor, setCurrentClueColor] = useState("#fff");
 
 	useEffect(() => {
 		const loadGuesses = async () => {
@@ -315,7 +316,9 @@ const GameBoard = () => {
 
 	const handleTouchStart = (clueKey, e) => {
 		e.stopPropagation();
+		const clueColor = getClueColor(clueKey);
 		setCurrentClueUrl(cluePaths[clueKey]);
+		setCurrentClueColor(clueColor); // Set the clue color for the modal border
 		setShowClueModal(true);
 		console.log("Clue URL:", cluePaths[clueKey]);
 	};
@@ -407,7 +410,11 @@ const GameBoard = () => {
 				onPress={() => setShowPickerModal(true)}
 			/>
 			{currentLevel && (
-				<Text style={styles.levelTitle}>{levels[currentLevel].title}</Text>
+				<Text style={styles.levelTitle}>
+					{`Level ${currentLevel.replace("level", "")}: ${
+						levels[currentLevel].title
+					}`}
+				</Text>
 			)}
 		</View>
 	);
@@ -474,7 +481,11 @@ const GameBoard = () => {
 					onRequestClose={() => setShowClueModal(false)}>
 					<TouchableWithoutFeedback onPress={() => setShowClueModal(false)}>
 						<View style={styles.modalBackdrop}>
-							<View style={styles.modalContent}>
+							<View
+								style={[
+									styles.modalContent,
+									{ borderColor: currentClueColor, borderWidth: 4 }, // Add border color and width
+								]}>
 								<Image
 									source={{ uri: currentClueUrl }}
 									style={styles.modalImage}
@@ -486,8 +497,9 @@ const GameBoard = () => {
 				</Modal>
 			)}
 			<Button
-				title="Start Over"
+				title="Erase All and Start Over"
 				onPress={clearGuesses}
+				style={{ marginBottom: 20 }} // Add margin to push the button away from the edge
 			/>
 		</View>
 	);
