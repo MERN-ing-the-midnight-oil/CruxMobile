@@ -5,7 +5,10 @@ import {
 	StyleSheet,
 	Linking,
 	TouchableOpacity,
+	Dimensions,
 } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 const Introduction = () => {
 	return (
@@ -28,10 +31,11 @@ const Introduction = () => {
 					}>
 					<Text style={styles.link}>Mysterium</Text>
 				</TouchableOpacity>
-				. Click on the colored areas to see picture clues that somehow pertain
-				to all adjacent words. Type your solutions into the white squares.
-				Correct letters will turn the grid square from white to green. Good
-				luck!
+				. Tap on the colorful regions of the crossword to see visual clues. Each
+				visual clue contains a hint for any word that is touching that region.
+				So a colorful region that borders three different words will show an
+				image that has hints about the three words. Type your guesses into the
+				blank squares. Correct letters will turn green. Good luck!
 			</Text>
 		</View>
 	);
@@ -39,20 +43,25 @@ const Introduction = () => {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 10,
-		marginBottom: 20,
+		padding: 20,
+		backgroundColor: "#f8f9fa", // Light background color
+		borderRadius: 10,
+		margin: 10,
 	},
 	title: {
-		fontSize: 24,
+		fontSize: width * 0.08, // Responsive font size
 		fontWeight: "bold",
 		textAlign: "center",
 		marginBottom: 10,
+		color: "#333", // Dark text color
 	},
 	text: {
-		fontSize: 16,
+		fontSize: width * 0.05, // Responsive font size
+		lineHeight: width * 0.07, // Line height for better readability
+		color: "#555", // Medium-dark text color for better readability
 	},
 	link: {
-		color: "blue",
+		color: "#007bff", // Bootstrap primary blue color
 		textDecorationLine: "underline",
 	},
 });

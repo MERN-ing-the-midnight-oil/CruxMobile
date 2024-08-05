@@ -27,16 +27,16 @@ const App = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		width: '100%', // Ensure it takes the full width
+		width: '100%',
 		justifyContent: 'center',
 		alignItems: 'center',
 		padding: 0,
 		margin: 0,
-		backgroundColor: 'red', // For debugging
+		backgroundColor: '#f8f9fa', // Light background color to match Introduction
 	},
 	introductionContainer: {
 		marginBottom: 20,
-		width: '100%', // Ensure it takes the full width
+		width: '100%',
 	},
 });
 
