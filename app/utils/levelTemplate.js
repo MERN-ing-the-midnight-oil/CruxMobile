@@ -1,9 +1,12 @@
 // src/levels/level999999.js
+// src/levels/level999999.js
 
-import { createCluePaths } from "../utils/cluePathGenerator";
+import { createCluePaths } from "./clueUtils"; // Correct import path
+
 const baseUrl = process.env.REACT_APP_IMAGE_BASE_URL || ""; // Base URL for images
 const levelId = "level9999"; // Unique identifier for level
-const title = "Wow what a great title."; // Title of the leve
+const title = "Wow what a great title."; // Title of the level
+
 // Define the visual representation of the grid
 // prettier-ignore
 const visualGrid = [

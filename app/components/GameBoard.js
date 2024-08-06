@@ -18,29 +18,35 @@ import { Picker } from "@react-native-picker/picker";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import level1 from "../data/level1";
 import level2 from "../data/level2";
-import { getClueColor } from "../utils/getClueColor";
-import { checkWordCompletion } from "../utils/checkWordCompletion";
-import { createCluePaths } from "../utils/cluePathGenerator";
-import { getClueCellStyle } from "../utils/clueCellStyle";
+import {
+	getClueColor,
+	getClueCellStyle,
+	createCluePaths,
+} from "../utils/clueUtils";
+import {
+	checkWordCompletion,
+	moveFocus,
+	moveFocusAndDelete,
+} from "../utils/gameplayUtils";
 import styles from "./GameBoardStyles"; // Ensure correct import path
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const GameBoard = () => {
 	const levels = { level1, level2 };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
-	const [correctAnswers, setCorrectAnswers] = useState({});
+	const [correctAnswers, setCorrectAnswers] = useState({}); // State to track correct answers
 	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null);
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
+	const [currentClue, setCurrentClue] = useState(null); // Track current clue
 	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
-	const [focusedPosition, setFocusedPosition] = useState(null);
+	const [focusedPosition, setFocusedPosition] = useState(null); // Track focused position
 	const inputRefs = useRef({});
 	const [cluePaths, setCluePaths] = useState({});
-	const [currentClueColor, setCurrentClueColor] = useState("#fff");
 
 	useEffect(() => {
 		const loadGuesses = async () => {
@@ -145,7 +151,16 @@ const GameBoard = () => {
 				delete updatedGuesses[position];
 				return updatedGuesses;
 			});
-			moveFocusAndDelete(position);
+			moveFocusAndDelete(
+				position,
+				focusDirection,
+				inputRefs,
+				correctAnswers,
+				guesses,
+				setGuesses,
+				levels,
+				currentLevel
+			);
 		} else {
 			setGuesses((prevGuesses) => {
 				const updatedGuesses = {
@@ -156,7 +171,16 @@ const GameBoard = () => {
 				return updatedGuesses;
 			});
 			setLastUpdatedPosition(position);
-			moveFocus(position, "forward");
+			moveFocus(
+				position,
+				"forward",
+				focusDirection,
+				inputRefs,
+				correctAnswers,
+				levels,
+				currentLevel,
+				setFocusDirection
+			);
 		}
 	};
 
@@ -168,7 +192,16 @@ const GameBoard = () => {
 				delete updatedGuesses[position];
 				return updatedGuesses;
 			});
-			moveFocusAndDelete(position);
+			moveFocusAndDelete(
+				position,
+				focusDirection,
+				inputRefs,
+				correctAnswers,
+				guesses,
+				setGuesses,
+				levels,
+				currentLevel
+			);
 		}
 	};
 
@@ -188,137 +221,10 @@ const GameBoard = () => {
 		setFocusedPosition(null);
 	};
 
-	const moveFocusAndDelete = (currentPosition) => {
-		let [row, col] = currentPosition.split("-").map(Number);
-
-		const deleteCharacter = (pos) => {
-			setGuesses((prevGuesses) => {
-				const updatedGuesses = { ...prevGuesses };
-				delete updatedGuesses[pos];
-				return updatedGuesses;
-			});
-		};
-
-		const moveFocus = (newPosition) => {
-			if (isPositionValid(newPosition) && inputRefs.current[newPosition]) {
-				console.log(`Focusing on position ${newPosition}`);
-				inputRefs.current[newPosition].focus();
-				return newPosition;
-			}
-			return null;
-		};
-
-		const directions =
-			focusDirection === "across" ? ["left", "up"] : ["up", "left"];
-		for (let direction of directions) {
-			let nextPosition =
-				direction === "left" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
-			while (isPositionValid(nextPosition)) {
-				const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-				if (!correctAnswers[nextPosition] && guesses[nextPosition]) {
-					deleteCharacter(nextPosition);
-					const newPos = moveFocus(nextPosition);
-					if (newPos) {
-						row = nextRow;
-						col = nextCol;
-					} else {
-						break;
-					}
-				} else {
-					break;
-				}
-				nextPosition =
-					direction === "left" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
-			}
-		}
-	};
-
-	const moveFocus = (currentPosition, direction = "forward") => {
-		const [row, col] = currentPosition.split("-").map(Number);
-		let nextPosition = getNextPosition(row, col, focusDirection, direction);
-
-		console.log(
-			`Trying to move focus ${direction} from ${currentPosition} to ${nextPosition}`
-		);
-
-		while (isPositionValid(nextPosition) && correctAnswers[nextPosition]) {
-			// Skip positions that are already correct answers
-			const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-			if (focusDirection === "across") {
-				nextPosition =
-					direction === "forward"
-						? `${nextRow}-${nextCol + 1}`
-						: `${nextRow}-${nextCol - 1}`;
-			} else {
-				nextPosition =
-					direction === "forward"
-						? `${nextRow + 1}-${nextCol}`
-						: `${nextRow - 1}-${nextCol}`;
-			}
-			console.log(`Skipping correct answer, next position: ${nextPosition}`);
-		}
-
-		if (isPositionValid(nextPosition) && inputRefs.current[nextPosition]) {
-			console.log(`Focusing on position ${nextPosition}`);
-			inputRefs.current[nextPosition].focus();
-		} else {
-			// If no valid next position, try changing direction
-			const newDirection = focusDirection === "across" ? "down" : "across";
-			nextPosition = getNextPosition(row, col, newDirection, direction);
-
-			while (isPositionValid(nextPosition) && correctAnswers[nextPosition]) {
-				// Skip positions that are already correct answers
-				const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-				if (newDirection === "across") {
-					nextPosition =
-						direction === "forward"
-							? `${nextRow}-${nextCol + 1}`
-							: `${nextRow}-${nextCol - 1}`;
-				} else {
-					nextPosition =
-						direction === "forward"
-							? `${nextRow + 1}-${nextCol}`
-							: `${nextRow - 1}-${nextCol}`;
-				}
-				console.log(`Skipping correct answer, next position: ${nextPosition}`);
-			}
-
-			if (isPositionValid(nextPosition) && inputRefs.current[nextPosition]) {
-				console.log(`Focusing on position ${nextPosition}`);
-				inputRefs.current[nextPosition].focus();
-				setFocusDirection(newDirection); // Change direction
-			}
-		}
-	};
-
-	const getNextPosition = (row, col, direction, moveDirection) => {
-		if (direction === "across") {
-			return moveDirection === "forward"
-				? `${row}-${col + 1}`
-				: `${row}-${col - 1}`;
-		} else {
-			return moveDirection === "forward"
-				? `${row + 1}-${col}`
-				: `${row - 1}-${col}`;
-		}
-	};
-
-	const isPositionValid = (position) => {
-		const [row, col] = position.split("-").map(Number);
-		if (row >= levels[currentLevel].grid.length || row < 0) {
-			return false;
-		}
-		if (col >= levels[currentLevel].grid[row].length || col < 0) {
-			return false;
-		}
-		return !levels[currentLevel].grid[row][col].empty;
-	};
-
 	const handleTouchStart = (clueKey, e) => {
 		e.stopPropagation();
-		const clueColor = getClueColor(clueKey);
 		setCurrentClueUrl(cluePaths[clueKey]);
-		setCurrentClueColor(clueColor); // Set the clue color for the modal border
+		setCurrentClue(clueKey); // Set current clue
 		setShowClueModal(true);
 		console.log("Clue URL:", cluePaths[clueKey]);
 	};
@@ -472,6 +378,14 @@ const GameBoard = () => {
 					const { width } = event.nativeEvent.layout;
 					setGameContainerWidth(width);
 				}}
+				ListFooterComponent={() => (
+					<View style={styles.footer}>
+						<Button
+							title="Erase All and Start Over"
+							onPress={clearGuesses}
+						/>
+					</View>
+				)}
 			/>
 			{showClueModal && (
 				<Modal
@@ -484,7 +398,10 @@ const GameBoard = () => {
 							<View
 								style={[
 									styles.modalContent,
-									{ borderColor: currentClueColor, borderWidth: 4 }, // Add border color and width
+									{
+										borderColor: getClueColor(currentClue), // Set border color based on current clue
+										borderWidth: 4,
+									},
 								]}>
 								<Image
 									source={{ uri: currentClueUrl }}
@@ -496,11 +413,6 @@ const GameBoard = () => {
 					</TouchableWithoutFeedback>
 				</Modal>
 			)}
-			<Button
-				title="Erase All and Start Over"
-				onPress={clearGuesses}
-				style={{ marginBottom: 20 }} // Add margin to push the button away from the edge
-			/>
 		</View>
 	);
 };

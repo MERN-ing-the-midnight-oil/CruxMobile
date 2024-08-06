@@ -1,5 +1,4 @@
-import { createCluePaths } from "../utils/cluePathGenerator";
-
+import { createCluePaths } from "../utils/clueUtils";
 const levelId = "level1"; // Unique identifier for level 1
 const title = `"Don't count your clichés before they hatch."`; // Title of the level
 

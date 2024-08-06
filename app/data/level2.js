@@ -1,6 +1,5 @@
 // this is the original REACT version of level 2 that needs updating to React Native
-import { createCluePaths } from "../utils/cluePathGenerator";
-
+import { createCluePaths } from "../utils/clueUtils";
 const levelId = "level2"; // Unique identifier for each level
 const title = `Level 2 is Coming Soon: "Pals and partial pals"`; // Title of the level
 

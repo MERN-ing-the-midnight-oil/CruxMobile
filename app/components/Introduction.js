@@ -31,11 +31,11 @@ const Introduction = () => {
 					}>
 					<Text style={styles.link}>Mysterium</Text>
 				</TouchableOpacity>
-				. Tap on the colorful regions of the crossword to see visual clues. Each
-				visual clue contains a hint for any word that is touching that region.
-				So a colorful region that borders three different words will show an
-				image that has hints about the three words. Type your guesses into the
-				blank squares. Correct letters will turn green. Good luck!
+				. Tap on the colored sections to reveal visual clues. Each clue contains
+				imagery related to all the words touching that section. By finding
+				commonalities between the clues, you can guess the words. Type your
+				guesses into the blank squares. Correct letters will turn green. Good
+				luck!
 			</Text>
 		</View>
 	);

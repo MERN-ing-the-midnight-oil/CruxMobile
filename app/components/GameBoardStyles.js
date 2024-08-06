@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
 	container: {
@@ -77,12 +79,18 @@ const styles = StyleSheet.create({
 		backgroundColor: "white",
 		alignItems: "center",
 		borderRadius: 10,
+		borderWidth: 4, // Make the border thicker
 		overflow: "hidden", // Ensure image fits within the modal
 	},
 	modalImage: {
 		width: "100%",
 		height: undefined,
 		aspectRatio: 1, // Adjust aspect ratio as needed
+	},
+	footer: {
+		padding: 10,
+		width: "100%",
+		backgroundColor: "#f0f0f5", // Consistent background color
 	},
 });
 
