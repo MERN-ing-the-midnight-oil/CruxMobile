@@ -15,25 +15,10 @@ const Introduction = () => {
 		<View style={styles.container}>
 			<Text style={styles.title}>Crux</Text>
 			<Text style={styles.text}>
-				Welcome to Crux! The crossword game with a dash of{" "}
-				<TouchableOpacity
-					onPress={() =>
-						Linking.openURL("https://boardgamegeek.com/boardgame/39856/dixit")
-					}>
-					<Text style={styles.link}>Dixit</Text>
-				</TouchableOpacity>{" "}
-				and a sprinkle of{" "}
-				<TouchableOpacity
-					onPress={() =>
-						Linking.openURL(
-							"https://boardgamegeek.com/boardgame/181304/mysterium"
-						)
-					}>
-					<Text style={styles.link}>Mysterium</Text>
-				</TouchableOpacity>
-				. Tap on the colored sections to reveal visual clues. Each clue contains
-				imagery related to all the words touching that section. By finding
-				commonalities between the clues, you can guess the words. Type your
+				Welcome to Crux! Tap on the colorful tile shapes to see clues pertaining
+				to the crossword words they sit next to. Each clue contains imagery
+				related to any and all adjacent words. By finding commonalities between
+				the image clues touching one word, you can guess the word. Type your
 				guesses into the blank squares. Correct letters will turn green. Good
 				luck!
 			</Text>

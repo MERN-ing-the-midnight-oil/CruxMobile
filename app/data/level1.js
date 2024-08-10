@@ -1,4 +1,5 @@
 import { createCluePaths } from "../utils/clueUtils";
+import { createGridFromVisual } from "../utils/gridFromVisualGrid"; // Import the utility function
 const levelId = "level1"; // Unique identifier for level 1
 const title = `"Don't count your clichés before they hatch."`; // Title of the level
 
@@ -32,33 +33,6 @@ const visualGrid = [
 	[["C_"], ["A_"], ["S_"], ["E_"], ["##"], ["##"]],
 	[["##"], ["##"], ["##"], ["##"], ["##"], ["##"]],
 ];
-
-function createGridFromVisual(visualGrid) {
-	const grid = visualGrid.map((row) => {
-		if (row.length === 0) {
-			return [];
-		}
-		return row.map((cell) => {
-			const content = cell[0];
-			if (content === "##") {
-				return { empty: true };
-			}
-			if (content.match(/^\d\d$/)) {
-				// Matches two digits representing a clue
-				return { clue: `clue${content}` };
-			}
-			if (content.endsWith("_")) {
-				// Check if content ends with an underscore, indicating a letter
-				return { letter: content[0] };
-			}
-			return { empty: true };
-		});
-	});
-
-	// Log the created grid to the console for demonstration purposes
-	console.log("Created Grid:", grid);
-	return grid;
-}
 
 const numberOfClues = 99;
 const level1 = {
