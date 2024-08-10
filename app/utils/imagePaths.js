@@ -1,6 +1,12 @@
 import { Asset } from "expo-asset";
 
 export const imagePaths = {
+	level0: {
+		clue00: Asset.fromModule(
+			require("../../assets/images/clues/level0/clue00.webp")
+		).uri,
+		// Add more clues for level0 as needed
+	},
 	level1: {
 		clue00: Asset.fromModule(
 			require("../../assets/images/clues/level1/clue00.webp")
@@ -54,7 +60,6 @@ export const imagePaths = {
 			require("../../assets/images/clues/level1/clue16.webp")
 		).uri,
 	},
-
 	level2: {},
 	// Add more levels as needed
 };

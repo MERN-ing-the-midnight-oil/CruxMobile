@@ -59,6 +59,5 @@ export function createGridFromVisual(visualGrid) {
 	});
 
 	// Log the created grid to the console for demonstration purposes
-	console.log("Created Grid:", grid);
 	return grid;
 }
