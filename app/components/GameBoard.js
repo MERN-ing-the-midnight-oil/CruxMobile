@@ -19,15 +19,17 @@ import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import level1 from "../data/level1";
 import level2 from "../data/level2";
 import {
-	getClueColor,
-	getClueCellStyle,
-	createCluePaths,
-} from "../utils/clueUtils";
-import {
 	checkWordCompletion,
 	moveFocus,
 	moveFocusAndDelete,
+	getNextPosition,
+	isPositionValid,
 } from "../utils/gameplayUtils";
+import {
+	getClueCellStyle,
+	getClueColor,
+	createCluePaths,
+} from "../utils/clueUtils";
 import styles from "./GameBoardStyles"; // Ensure correct import path
 
 const { width, height } = Dimensions.get("window");
@@ -41,7 +43,7 @@ const GameBoard = () => {
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
-	const [currentClue, setCurrentClue] = useState(null); // Track current clue
+	const [currentClueKey, setCurrentClueKey] = useState(""); // Add state for the current clue key
 	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
 	const [focusedPosition, setFocusedPosition] = useState(null); // Track focused position
@@ -223,8 +225,8 @@ const GameBoard = () => {
 
 	const handleTouchStart = (clueKey, e) => {
 		e.stopPropagation();
+		setCurrentClueKey(clueKey); // Store the current clue key
 		setCurrentClueUrl(cluePaths[clueKey]);
-		setCurrentClue(clueKey); // Set current clue
 		setShowClueModal(true);
 		console.log("Clue URL:", cluePaths[clueKey]);
 	};
@@ -379,7 +381,7 @@ const GameBoard = () => {
 					setGameContainerWidth(width);
 				}}
 				ListFooterComponent={() => (
-					<View style={styles.footer}>
+					<View style={[styles.footer, !currentLevel && styles.hidden]}>
 						<Button
 							title="Erase All and Start Over"
 							onPress={clearGuesses}
@@ -398,10 +400,7 @@ const GameBoard = () => {
 							<View
 								style={[
 									styles.modalContent,
-									{
-										borderColor: getClueColor(currentClue), // Set border color based on current clue
-										borderWidth: 4,
-									},
+									{ borderColor: getClueColor(currentClueKey) }, // Apply the clue color to the modal border
 								]}>
 								<Image
 									source={{ uri: currentClueUrl }}

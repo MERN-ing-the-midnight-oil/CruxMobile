@@ -1,4 +1,6 @@
-// gameplayUtils.js
+// app/utils/gameplayUtils.js
+
+import { getClueColor, getClueCellStyle } from "./clueUtils";
 
 // Check word completion function
 export const checkWordCompletion = (grid, guesses, position) => {
@@ -79,7 +81,7 @@ const checkVerticalWord = (grid, guesses, rowIndex, colIndex) => {
 	return isWordComplete;
 };
 
-// Other utility functions
+// Utility functions
 export const getNextPosition = (row, col, direction, moveDirection) => {
 	if (direction === "across") {
 		return moveDirection === "forward"
@@ -226,3 +228,6 @@ export const moveFocusAndDelete = (
 		}
 	}
 };
+
+// Style utilities for clue cells
+export { getClueCellStyle } from "./clueUtils";
