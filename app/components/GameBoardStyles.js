@@ -58,7 +58,7 @@ const gameBoardStyles = StyleSheet.create({
 		alignItems: "center",
 	},
 	correctGuessCell: {
-		backgroundColor: "#d4edda", // Green background for correct guesses
+		backgroundColor: "#8fd18b", // Green background for correct guesses
 	},
 	input: {
 		width: "100%",
