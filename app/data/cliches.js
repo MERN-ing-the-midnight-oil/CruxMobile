@@ -1,9 +1,8 @@
 import { createCluePaths } from "../utils/clueUtils";
 import { createGridFromVisual } from "../utils/gridFromVisualGrid"; // Import the utility function
-const levelId = "level1"; // Unique identifier for level 1
+const levelId = "cliches"; // Unique identifier for level 1
 const title = `"Don't count your clichés before they hatch."`; // Title of the level
 
-// The visual representation of the grid (the "easy grid!")
 const visualGrid = [
 	[["##"], ["##"], ["##"], ["##"], ["##"], ["##"]],
 	[["##"], ["##"], ["00"], ["F_"], ["##"], ["##"]],
@@ -35,10 +34,10 @@ const visualGrid = [
 ];
 
 const numberOfClues = 99;
-const level1 = {
+const cliches = {
 	title: title,
 	grid: createGridFromVisual(visualGrid),
 	clues: createCluePaths(levelId, numberOfClues),
 };
 
-export default level1;
+export default cliches;

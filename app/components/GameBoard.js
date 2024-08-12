@@ -16,8 +16,9 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
-import level1 from "../data/level1";
-import level2 from "../data/level2";
+import cliches from "../data/cliches";
+import colorsandshapes from "../data/colorsandshapes";
+import tutorial from "../data/tutorial"; // Import the tutorial level
 import {
 	checkWordCompletion,
 	moveFocus,
@@ -35,7 +36,7 @@ import styles from "./GameBoardStyles"; // Ensure correct import path
 const { width, height } = Dimensions.get("window");
 
 const GameBoard = () => {
-	const levels = { level1, level2 };
+	const levels = { cliches, colorsandshapes, tutorial }; // Add tutorial level here
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
 	const [correctAnswers, setCorrectAnswers] = useState({}); // State to track correct answers
@@ -345,14 +346,14 @@ const GameBoard = () => {
 							}}
 							style={styles.picker}>
 							<Picker.Item
-								label="Select Level"
+								label="Select Puzzle"
 								value=""
 								color="#999"
 							/>
 							{Object.keys(levels).map((level) => (
 								<Picker.Item
 									key={level}
-									label={`Level ${level.replace("level", "")}`}
+									label={`"${level.replace("level", "")}"`}
 									value={level}
 								/>
 							))}

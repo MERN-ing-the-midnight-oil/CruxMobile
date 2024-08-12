@@ -1,7 +1,7 @@
 import { createCluePaths } from "../utils/clueUtils";
 import { createGridFromVisual } from "../utils/gridFromVisualGrid"; // Import the utility function
 
-const levelId = "level0"; // Unique identifier for level 0
+const levelId = "colorsandshapes"; // Unique identifier for level 0
 const title = `"Shapes and Colors."`; // Title of the level
 
 // The visual representation of the grid (the "easy grid!")
@@ -39,10 +39,10 @@ const visualGrid = [
 ];
 
 const numberOfClues = 99;
-const level0 = {
+const colorsandshapes = {
 	title: title,
 	grid: createGridFromVisual(visualGrid),
 	clues: createCluePaths(levelId, numberOfClues),
 };
 
-export default level0;
+export default colorsandshapes;
