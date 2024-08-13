@@ -19,7 +19,6 @@ import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import cliches from "../data/cliches";
 import colorsandshapes from "../data/colorsandshapes";
 import tutorial from "../data/tutorial"; // Import the tutorial level
-import { imagePaths } from "../utils/imagePaths"; // Import the image paths
 import {
 	checkWordCompletion,
 	moveFocus,
@@ -55,7 +54,7 @@ const GameBoard = () => {
 	useEffect(() => {
 		const loadGuesses = async () => {
 			const savedGuesses = await AsyncStorage.getItem(
-				`guesses-${currentLevel}`
+				`guesses-${currentLevel}` // Corrected template literal
 			);
 			console.log("Loaded Guesses:", savedGuesses);
 			if (savedGuesses) {
@@ -78,7 +77,7 @@ const GameBoard = () => {
 	useEffect(() => {
 		const loadCorrectAnswers = async () => {
 			const savedCorrectAnswers = await AsyncStorage.getItem(
-				`correctAnswers-${currentLevel}`
+				`correctAnswers-${currentLevel}` // Corrected template literal
 			);
 			console.log("Loaded Correct Answers:", savedCorrectAnswers);
 			if (savedCorrectAnswers) {
@@ -94,7 +93,7 @@ const GameBoard = () => {
 		const saveCorrectAnswers = async () => {
 			const savedCorrectAnswers = JSON.stringify(correctAnswers);
 			await AsyncStorage.setItem(
-				`correctAnswers-${currentLevel}`,
+				`correctAnswers-${currentLevel}`, // Corrected template literal
 				savedCorrectAnswers
 			);
 		};
@@ -364,13 +363,6 @@ const GameBoard = () => {
 					</View>
 				</Modal>
 			)}
-
-			{/* Verify image paths by displaying an image */}
-			<Image
-				source={{ uri: imagePaths.cliches.clue00 }} // Use the image path
-				style={{ width: 100, height: 100 }}
-			/>
-
 			<KeyboardAwareFlatList
 				ListHeaderComponent={renderHeader}
 				data={levels[currentLevel]?.grid || []}

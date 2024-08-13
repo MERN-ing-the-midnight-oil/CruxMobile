@@ -33,9 +33,10 @@ const gameBoardStyles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 		backgroundColor: "rgba(0,0,0,0.5)",
+		width: "95%", // Full width
 	},
 	picker: {
-		width: 200,
+		width: "90%", // 90% of the screen width
 		backgroundColor: "#fff",
 		borderRadius: 10,
 	},
