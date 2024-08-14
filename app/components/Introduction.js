@@ -1,25 +1,23 @@
 import React from "react";
-import {
-	View,
-	Text,
-	StyleSheet,
-	Linking,
-	TouchableOpacity,
-	Dimensions,
-} from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions } from "react-native";
+import { imagePaths } from "../utils/imagePaths";
 
 const { width } = Dimensions.get("window");
 
 const Introduction = () => {
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>Crux</Text>
+			<Image
+				source={{ uri: imagePaths.cruxIcon }} // Use the image path
+				style={styles.image}
+			/>
+			<Text style={styles.title}>Welcome to Crux!</Text>
 			<Text style={styles.text}>
-				Welcome to Crux! Tap on the colorful tile shapes to see clues pertaining
-				to the crossword words they sit next to. Each clue contains imagery
-				related to any and all adjacent words. By finding commonalities between
-				the image clues touching one word, you can guess the word. Type your
-				guesses into the blank squares. Correct letters will turn green. Good
+				Tap on the colorful tile shapes to see the clue images for the adjacent
+				unknown words. Each clue image contains information related to any and
+				all adjacent words. By finding commonalities between the clues touching
+				any given word, you can guess the word. Type your letter guesses into
+				the white squares. Correct guesses will turn the squares green. Good
 				luck!
 			</Text>
 		</View>
@@ -32,6 +30,12 @@ const styles = StyleSheet.create({
 		backgroundColor: "#f8f9fa", // Light background color
 		borderRadius: 10,
 		margin: 10,
+	},
+	image: {
+		width: 100,
+		height: 100,
+		alignSelf: "center",
+		marginBottom: 10,
 	},
 	title: {
 		fontSize: width * 0.08, // Responsive font size

@@ -127,8 +127,8 @@ const GameBoard = () => {
 					lastUpdatedPosition
 				);
 				if (wordCompleted) {
-					Alert.alert("Congratulations!", "You completed a word!");
-					console.log("Congratulations! You completed a word!");
+					// Alert.alert("Congratulations!", "You completed a word!");
+					console.log("Congratulations! You completed a word!"); // Optionally keep this log for debugging
 				}
 			}
 		}
@@ -364,12 +364,6 @@ const GameBoard = () => {
 					</View>
 				</Modal>
 			)}
-
-			{/* Verify image paths by displaying an image */}
-			<Image
-				source={{ uri: imagePaths.cliches.clue00 }} // Use the image path
-				style={{ width: 100, height: 100 }}
-			/>
 
 			<KeyboardAwareFlatList
 				ListHeaderComponent={renderHeader}
