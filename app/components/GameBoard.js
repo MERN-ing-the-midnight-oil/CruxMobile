@@ -18,7 +18,8 @@ import { Picker } from "@react-native-picker/picker";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import cliches from "../data/cliches";
 import colorsandshapes from "../data/colorsandshapes";
-import tutorial from "../data/tutorial"; // Import the tutorial level
+//import tutorial from "../data/tutorial"; // Import the tutorial level
+import easylevel from "../data/easylevel"; // Correct case-sensitive file name
 import { imagePaths } from "../utils/imagePaths"; // Import the image paths
 import {
 	checkWordCompletion,
@@ -37,7 +38,7 @@ import styles from "./GameBoardStyles"; // Ensure correct import path
 const { width, height } = Dimensions.get("window");
 
 const GameBoard = () => {
-	const levels = { cliches, colorsandshapes, tutorial }; // Add tutorial level here
+	const levels = { easylevel, colorsandshapes, cliches }; // Add tutorial level here
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
 	const [correctAnswers, setCorrectAnswers] = useState({}); // State to track correct answers
@@ -320,9 +321,14 @@ const GameBoard = () => {
 				onPress={() => setShowPickerModal(true)}
 			/>
 			{currentLevel && (
-				<Text style={styles.levelTitle}>
-					{levels[currentLevel].title} {/* Display the level title only */}
-				</Text>
+				<>
+					<Text style={styles.levelTitle}>{levels[currentLevel].title}</Text>
+					{levels[currentLevel].secondaryTitle && (
+						<Text style={styles.secondaryTitle}>
+							{levels[currentLevel].secondaryTitle}
+						</Text>
+					)}
+				</>
 			)}
 		</View>
 	);

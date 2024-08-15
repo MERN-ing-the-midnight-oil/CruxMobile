@@ -45,13 +45,14 @@ const styles = StyleSheet.create({
 		color: "#333", // Dark text color
 	},
 	text: {
-		fontSize: width * 0.05, // Responsive font size
+		fontSize: width * 0.07, // Responsive font size
 		lineHeight: width * 0.07, // Line height for better readability
 		color: "#555", // Medium-dark text color for better readability
 	},
 	link: {
 		color: "#007bff", // Bootstrap primary blue color
 		textDecorationLine: "underline",
+		lineHeight: width * 0.07, // Line height for better readability
 	},
 });
 

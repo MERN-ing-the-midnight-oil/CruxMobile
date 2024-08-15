@@ -23,6 +23,12 @@ const gameBoardStyles = StyleSheet.create({
 		fontWeight: "bold",
 		marginVertical: 10,
 	},
+	secondaryTitle: {
+		fontSize: 16,
+		textAlign: "center",
+		color: "#777",
+		marginBottom: 10,
+	},
 	gameContainer: {
 		alignItems: "center",
 		padding: 10,

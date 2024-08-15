@@ -100,20 +100,69 @@ export const imagePaths = {
 		clue15: Asset.fromModule(
 			require("../../assets/images/clues/colorsandshapes/clue15.webp")
 		).uri,
-	},
-	tutorial: {
-		clue00: Asset.fromModule(
-			require("../../assets/images/clues/tutorial/clue00.webp")
+		clue16: Asset.fromModule(
+			require("../../assets/images/clues/colorsandshapes/clue16.webp")
 		).uri,
+		clue17: Asset.fromModule(
+			require("../../assets/images/clues/colorsandshapes/clue17.webp")
+		).uri,
+	},
+	// tutorial: {
+	// 	clue00: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue00.webp")
+	// 	).uri,
+	// 	clue01: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue01.webp")
+	// 	).uri,
+	// 	clue02: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue02.webp")
+	// 	).uri,
+	// 	clue03: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue03.webp")
+	// 	).uri,
+	// 	clue04: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue04.webp")
+	// 	).uri,
+	// 	clue05: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue05.webp")
+	// 	).uri,
+	// 	clue06: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue06.webp")
+	// 	).uri,
+	// 	clue07: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue07.webp")
+	// 	).uri,
+	// 	clue08: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue08.webp")
+	// 	).uri,
+	// 	clue09: Asset.fromModule(
+	// 		require("../../assets/images/clues/tutorial/clue09.webp")
+	// 	).uri,
+	// },
+	easylevel: {
 		clue01: Asset.fromModule(
-			require("../../assets/images/clues/tutorial/clue01.webp")
+			require("../../assets/images/clues/easylevel/clue01.webp")
 		).uri,
 		clue02: Asset.fromModule(
-			require("../../assets/images/clues/tutorial/clue02.webp")
+			require("../../assets/images/clues/easylevel/clue02.webp")
 		).uri,
 		clue03: Asset.fromModule(
-			require("../../assets/images/clues/tutorial/clue03.webp")
+			require("../../assets/images/clues/easylevel/clue03.webp")
+		).uri,
+		clue04: Asset.fromModule(
+			require("../../assets/images/clues/easylevel/clue04.webp")
+		).uri,
+		clue05: Asset.fromModule(
+			require("../../assets/images/clues/easylevel/clue05.webp")
+		).uri,
+		clue06: Asset.fromModule(
+			require("../../assets/images/clues/easylevel/clue06.webp")
+		).uri,
+		clue00: Asset.fromModule(
+			require("../../assets/images/clues/easylevel/clue00.webp")
+		).uri,
+		clue07: Asset.fromModule(
+			require("../../assets/images/clues/easylevel/clue07.webp")
 		).uri,
 	},
-	cruxIcon: Asset.fromModule(require("../../assets/images/crux_icon.webp")).uri,
 };
