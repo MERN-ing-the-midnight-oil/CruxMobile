@@ -18,7 +18,7 @@ import { Picker } from "@react-native-picker/picker";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import cliches from "../data/cliches";
 import colorsandshapes from "../data/colorsandshapes";
-//import tutorial from "../data/tutorial"; // Import the tutorial level
+// import tutorial from "../data/tutorial"; // Import the tutorial level
 import easylevel from "../data/easylevel"; // Correct case-sensitive file name
 import { imagePaths } from "../utils/imagePaths"; // Import the image paths
 import {

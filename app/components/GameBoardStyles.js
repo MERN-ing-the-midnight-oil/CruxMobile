@@ -30,10 +30,12 @@ const gameBoardStyles = StyleSheet.create({
 		marginBottom: 10,
 	},
 	gameContainer: {
-		alignItems: "center",
-		padding: 10,
-		backgroundColor: "#ffffff", // Background color for game container
+		borderWidth: 4,
+		borderColor: "#000",
+		padding: 2,
+		backgroundColor: "#fff",
 	},
+
 	pickerModal: {
 		flex: 1,
 		justifyContent: "center",
