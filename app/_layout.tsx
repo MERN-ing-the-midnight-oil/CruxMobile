@@ -6,7 +6,7 @@ export default function RootLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerShown: false, // This will hide the header
+          headerShown: false,
         }}
       />
     </Stack>
