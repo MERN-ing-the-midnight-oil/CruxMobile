@@ -15,14 +15,18 @@ import { Picker } from "@react-native-picker/picker";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import cliches from "../data/cliches";
 import colorsandshapes from "../data/colorsandshapes";
-import easylevel from "../data/easylevel";
-import { moveFocus, moveFocusAndDelete } from "../utils/gameplayUtils";
+import easylevel from "../data/easylevel"; // Correct case-sensitive file name
+import {
+	checkWordCompletion,
+	moveFocus,
+	moveFocusAndDelete,
+} from "../utils/gameplayUtils";
 import {
 	getClueCellStyle,
 	getClueColor,
 	createCluePaths,
 } from "../utils/clueUtils";
-import styles from "./GameBoardStyles";
+import styles from "./GameBoardStyles"; // Ensure correct import path
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,14 +34,15 @@ const GameBoard = () => {
 	const levels = { easylevel, colorsandshapes, cliches };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
-	const [correctAnswers, setCorrectAnswers] = useState({});
+	const [correctAnswers, setCorrectAnswers] = useState({}); // State to track correct answers
 	const [lastUpdatedPosition, setLastUpdatedPosition] = useState(null);
 	const [showPickerModal, setShowPickerModal] = useState(false);
 	const [showClueModal, setShowClueModal] = useState(false);
 	const [currentClueUrl, setCurrentClueUrl] = useState("");
-	const [currentClueKey, setCurrentClueKey] = useState("");
+	const [currentClueKey, setCurrentClueKey] = useState(""); // Add state for the current clue key
 	const [gameContainerWidth, setGameContainerWidth] = useState(0);
 	const [focusDirection, setFocusDirection] = useState("across");
+	const [focusedPosition, setFocusedPosition] = useState(null); // Track focused position
 	const inputRefs = useRef({});
 	const [cluePaths, setCluePaths] = useState({});
 
@@ -46,6 +51,7 @@ const GameBoard = () => {
 			const savedGuesses = await AsyncStorage.getItem(
 				`guesses-${currentLevel}`
 			);
+			console.log("Loaded Guesses:", savedGuesses);
 			if (savedGuesses) {
 				setGuesses(JSON.parse(savedGuesses));
 			} else {
@@ -68,6 +74,7 @@ const GameBoard = () => {
 			const savedCorrectAnswers = await AsyncStorage.getItem(
 				`correctAnswers-${currentLevel}`
 			);
+			console.log("Loaded Correct Answers:", savedCorrectAnswers);
 			if (savedCorrectAnswers) {
 				setCorrectAnswers(JSON.parse(savedCorrectAnswers));
 			} else {
@@ -97,6 +104,30 @@ const GameBoard = () => {
 		}
 	}, [currentLevel]);
 
+	useEffect(() => {
+		if (lastUpdatedPosition) {
+			const [rowIndex, colIndex] = lastUpdatedPosition.split("-").map(Number);
+			const correct =
+				levels[currentLevel].grid[rowIndex][colIndex].letter ===
+				guesses[lastUpdatedPosition];
+			if (correct) {
+				setCorrectAnswers((prevCorrectAnswers) => ({
+					...prevCorrectAnswers,
+					[lastUpdatedPosition]: true,
+				}));
+				const wordCompleted = checkWordCompletion(
+					levels[currentLevel].grid,
+					guesses,
+					lastUpdatedPosition
+				);
+				if (wordCompleted) {
+					// Alert.alert("Congratulations!", "You completed a word!");
+					console.log("Congratulations! You completed a word!"); // Optionally keep this log for debugging
+				}
+			}
+		}
+	}, [guesses, lastUpdatedPosition, currentLevel]);
+
 	const handleLevelChange = (value) => {
 		setCurrentLevel(value);
 		setGuesses({});
@@ -107,10 +138,12 @@ const GameBoard = () => {
 
 	const handleInputChange = (position, text) => {
 		if (correctAnswers[position]) {
-			return;
+			return; // Don't allow changes to correct answers
 		}
 		const newGuess = text.toUpperCase();
 		if (newGuess === "") {
+			// Handle backspace
+			console.log(`Delete key was pushed at ${position}`);
 			setGuesses((prevGuesses) => {
 				const updatedGuesses = { ...prevGuesses };
 				delete updatedGuesses[position];
@@ -132,6 +165,7 @@ const GameBoard = () => {
 					...prevGuesses,
 					[position]: newGuess.slice(-1),
 				};
+				console.log(`Updated guesses: ${JSON.stringify(updatedGuesses)}`);
 				return updatedGuesses;
 			});
 			setLastUpdatedPosition(position);
@@ -150,6 +184,7 @@ const GameBoard = () => {
 
 	const handleKeyPress = (position, key) => {
 		if (key === "Backspace") {
+			console.log(`Backspace key was pushed at ${position}`);
 			setGuesses((prevGuesses) => {
 				const updatedGuesses = { ...prevGuesses };
 				delete updatedGuesses[position];
@@ -169,6 +204,8 @@ const GameBoard = () => {
 	};
 
 	const handleFocus = (position) => {
+		console.log(`Input focused at ${position}`);
+		setFocusedPosition(position);
 		if (guesses[position] && !correctAnswers[position]) {
 			setGuesses((prevGuesses) => ({
 				...prevGuesses,
@@ -177,19 +214,24 @@ const GameBoard = () => {
 		}
 	};
 
-	const handleBlur = (position) => {};
+	const handleBlur = (position) => {
+		console.log(`Input blur at ${position}`);
+		setFocusedPosition(null);
+	};
 
 	const handleTouchStart = (clueKey, e) => {
 		e.stopPropagation();
-		setCurrentClueKey(clueKey);
+		setCurrentClueKey(clueKey); // Store the current clue key
 		setCurrentClueUrl(cluePaths[clueKey]);
 		setShowClueModal(true);
+		console.log("Clue URL:", cluePaths[clueKey]);
 	};
 
 	const clearStorageForLevel = async (level) => {
 		try {
 			await AsyncStorage.removeItem(`guesses-${level}`);
 			await AsyncStorage.removeItem(`correctAnswers-${level}`);
+			console.log(`AsyncStorage cleared for level ${level}`);
 		} catch (e) {
 			console.error("Failed to clear AsyncStorage", e);
 		}
@@ -246,6 +288,7 @@ const GameBoard = () => {
 						maxLength={1}
 						value={guesses[position] || ""}
 						onChangeText={(text) => {
+							console.log(`Character entered at ${position}: ${text}`);
 							handleInputChange(position, text);
 						}}
 						onKeyPress={({ nativeEvent: { key } }) =>
@@ -254,10 +297,10 @@ const GameBoard = () => {
 						onFocus={() => handleFocus(position)}
 						onBlur={() => handleBlur(position)}
 						style={styles.input}
-						autoCapitalize="characters"
-						autoCorrect={false}
-						keyboardType="default"
-						editable={!correctAnswers[position]}
+						autoCapitalize="characters" // Keep autoCapitalize as needed
+						autoCorrect={false} // Disable autocorrect
+						keyboardType="default" // Ensure default keyboard type
+						editable={!correctAnswers[position]} // Disable editing for correct answers
 					/>
 				</View>
 			);
@@ -308,7 +351,7 @@ const GameBoard = () => {
 							{Object.keys(levels).map((level) => (
 								<Picker.Item
 									key={level}
-									label={levels[level].title}
+									label={levels[level].title} // Display the level title
 									value={level}
 								/>
 							))}
