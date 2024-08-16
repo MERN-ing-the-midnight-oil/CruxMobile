@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.rhyssmoker.crux"
     },
     "android": {
-      "icon": "./assets/images/crux_icon.webp",
+      "icon": "./assets/images/crux_icon.jpg",
       "backgroundColor": "#FFFFFF",
       "package": "com.rhyssmoker.crux"
     },
