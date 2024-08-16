@@ -4,7 +4,7 @@
     "slug": "your-app-slug",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/crux_icon.webp",
+    "icon": "./assets/images/crux_icon.jpg",
     "scheme": "cruxmobile",
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -13,11 +13,13 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rhyssmoker.crux"
     },
     "android": {
       "icon": "./assets/images/crux_icon.webp",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#FFFFFF",
+      "package": "com.rhyssmoker.crux"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -25,6 +27,14 @@
     "plugins": [
       "expo-asset",
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1f1d875f-1fee-44b0-8a49-932a504e2a8f"
+      }
+    }
   }
 }

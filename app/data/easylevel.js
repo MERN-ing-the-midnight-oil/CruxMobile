@@ -2,9 +2,9 @@ import { createCluePaths } from "../utils/clueUtils";
 import { createGridFromVisual } from "../utils/gridFromVisualGrid"; // Import the utility function
 
 const levelId = "easylevel"; // Unique identifier for the easy level
-const title = "Getting Started"; // Title of the level
+const title = `"Getting Started"`; // Title of the level
 const secondaryTitle =
-	"The common element between the first two clues is the collor yellow. Therefore the answer to the first word across is `yellow`. Correct letters will turn the crossword spaces green. "; // Secondary title
+	"The common element between the first two clues is the color yellow. So the answer to the first word across is `YELLOW`. Typing correct letters will turn the crossword spaces green. "; // Secondary title
 
 const visualGrid = [
 	[["##"], ["##"], ["##"], ["##"], ["##"], ["##"]],
