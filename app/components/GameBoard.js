@@ -16,6 +16,8 @@ import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import cliches from "../data/cliches";
 import colorsandshapes from "../data/colorsandshapes";
 import easylevel from "../data/easylevel";
+import homophones from "../data/homophones";
+
 import { moveFocus, moveFocusAndDelete } from "../utils/gameplayUtils";
 import {
 	getClueCellStyle,
@@ -27,7 +29,7 @@ import styles from "./GameBoardStyles";
 const { width, height } = Dimensions.get("window");
 
 const GameBoard = () => {
-	const levels = { easylevel, colorsandshapes, cliches };
+	const levels = { easylevel, colorsandshapes, cliches, homophones };
 	const [currentLevel, setCurrentLevel] = useState("");
 	const [guesses, setGuesses] = useState({});
 	const [correctAnswers, setCorrectAnswers] = useState({});

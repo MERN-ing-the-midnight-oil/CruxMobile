@@ -14,10 +14,11 @@ const Introduction = () => {
 			<Text style={styles.title}>Welcome to Crux!</Text>
 			<Text style={styles.text}>
 				Tap on the colorful cells to see the clue images for the adjacent
-				unknown words. Each clue contains imagry related to any and all adjacent
-				words. By finding commonalities between the clues that touch any given
-				word, you can guess the word. Type your letter guesses into the white
-				squares. Correct guesses will turn the squares green. Good luck!
+				unknown words. Each clue contains imagery related to any and all
+				adjacent words. By finding commonalities between the clues that touch
+				any given word, you can guess the word. Type your letter guesses into
+				the white squares. Correct guesses will turn the squares green. Good
+				luck!
 			</Text>
 		</View>
 	);

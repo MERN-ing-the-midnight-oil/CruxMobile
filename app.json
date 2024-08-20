@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "your-app-name",
-    "slug": "your-app-slug",
+    "name": "Alpha Crux",
+    "slug": "Alpha Crux",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/crux_icon.jpg",
