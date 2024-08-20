@@ -134,4 +134,18 @@ export const imagePaths = {
 			require("../../assets/images/clues/easylevel/clue07.jpeg")
 		).uri,
 	},
+	homophones: {
+		clue00: Asset.fromModule(
+			require("../../assets/images/clues/homophones/clue00.jpeg")
+		).uri,
+		clue01: Asset.fromModule(
+			require("../../assets/images/clues/homophones/clue01.jpeg")
+		).uri,
+		clue02: Asset.fromModule(
+			require("../../assets/images/clues/homophones/clue02.jpeg")
+		).uri,
+		clue03: Asset.fromModule(
+			require("../../assets/images/clues/homophones/clue03.jpeg")
+		).uri,
+	},
 };
