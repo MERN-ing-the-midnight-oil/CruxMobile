@@ -1,10 +1,10 @@
 {
   "expo": {
     "name": "Alpha Crux",
-    "slug": "Alpha Crux",
-    "version": "1.0.0",
+    "slug": "your-app-slug",
+    "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/crux_icon.jpg",
+    "icon": "./assets/images/crux_icon.png",
     "scheme": "cruxmobile",
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -14,10 +14,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rhyssmoker.crux"
+      "bundleIdentifier": "com.rhyssmoker.crux",
+      "buildNumber": "2"
     },
     "android": {
-      "icon": "./assets/images/crux_icon.jpg",
+      "icon": "./assets/images/crux_icon.png",
       "backgroundColor": "#FFFFFF",
       "package": "com.rhyssmoker.crux"
     },
@@ -35,6 +36,7 @@
       "eas": {
         "projectId": "1f1d875f-1fee-44b0-8a49-932a504e2a8f"
       }
-    }
+    },
+    "owner": "rhyssmoker"
   }
 }
