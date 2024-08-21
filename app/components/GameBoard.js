@@ -71,7 +71,9 @@ const GameBoard = () => {
 				`correctAnswers-${currentLevel}`
 			);
 			if (savedCorrectAnswers) {
-				setCorrectAnswers(JSON.parse(savedCorrectAnswers));
+				const parsedCorrectAnswers = JSON.parse(savedCorrectAnswers);
+				setCorrectAnswers(parsedCorrectAnswers);
+				console.log("Correct answers loaded:", parsedCorrectAnswers);
 			} else {
 				setCorrectAnswers({});
 			}
@@ -108,10 +110,20 @@ const GameBoard = () => {
 	};
 
 	const handleInputChange = (position, text) => {
-		if (correctAnswers[position]) {
-			return;
+		const isCorrect = correctAnswers[position];
+
+		if (isCorrect) {
+			console.log(
+				`Input change attempted on locked cell at position ${position}. Ignored.`
+			);
+			return; // Don't allow changes to correct answers
 		}
+
+		console.log(
+			`Input change on cell at position ${position}. New guess: ${text}`
+		);
 		const newGuess = text.toUpperCase();
+
 		if (newGuess === "") {
 			setGuesses((prevGuesses) => {
 				const updatedGuesses = { ...prevGuesses };
@@ -136,6 +148,22 @@ const GameBoard = () => {
 				};
 				return updatedGuesses;
 			});
+
+			if (
+				newGuess.slice(-1) ===
+				levels[currentLevel].grid[position.split("-")[0]][
+					position.split("-")[1]
+				].letter
+			) {
+				setCorrectAnswers((prevAnswers) => ({
+					...prevAnswers,
+					[position]: newGuess.slice(-1),
+				}));
+				console.log(
+					`Correct answer entered at position ${position}. Cell is now locked.`
+				);
+			}
+
 			setLastUpdatedPosition(position);
 			moveFocus(
 				position,
@@ -144,8 +172,7 @@ const GameBoard = () => {
 				inputRefs,
 				correctAnswers,
 				levels,
-				currentLevel,
-				setFocusDirection
+				currentLevel
 			);
 		}
 	};
@@ -171,11 +198,26 @@ const GameBoard = () => {
 	};
 
 	const handleFocus = (position) => {
-		if (guesses[position] && !correctAnswers[position]) {
-			setGuesses((prevGuesses) => ({
-				...prevGuesses,
-				[position]: "",
-			}));
+		const isCorrect = correctAnswers[position];
+		const isEditable = !correctAnswers[position];
+
+		console.log(`Attempting to focus on cell at position ${position}.`);
+		console.log(` - Is cell correct: ${isCorrect ? "Yes" : "No"}`);
+		console.log(` - Is cell editable: ${isEditable ? "Yes" : "No"}`);
+
+		if (isCorrect) {
+			console.log(
+				`Focus attempted on locked cell at position ${position}. Blurring.`
+			);
+			inputRefs.current[position].blur(); // Remove focus immediately
+		} else {
+			console.log(`Focus allowed on editable cell at position ${position}.`);
+			if (guesses[position]) {
+				setGuesses((prevGuesses) => ({
+					...prevGuesses,
+					[position]: "",
+				}));
+			}
 		}
 	};
 
@@ -259,7 +301,14 @@ const GameBoard = () => {
 						autoCapitalize="characters"
 						autoCorrect={false}
 						keyboardType="default"
-						editable={!correctAnswers[position]}
+						editable={!correctAnswers[position]} // Correct answers should not be editable
+						onLayout={() => {
+							console.log(
+								`Cell ${position} is ${
+									!correctAnswers[position] ? "editable" : "locked"
+								}.`
+							);
+						}}
 					/>
 				</View>
 			);

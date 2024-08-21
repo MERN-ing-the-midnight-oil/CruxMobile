@@ -7,62 +7,75 @@ export const moveFocus = (
 	inputRefs,
 	correctAnswers,
 	levels,
-	currentLevel,
-	setFocusDirection
+	currentLevel
 ) => {
-	const [row, col] = currentPosition.split("-").map(Number);
+	let [row, col] = currentPosition.split("-").map(Number);
 	let nextPosition = getNextPosition(row, col, focusDirection, direction);
 
+	// Try to move focus in the current direction
 	while (
 		isPositionValid(nextPosition, levels[currentLevel].grid) &&
-		correctAnswers[nextPosition]
+		(correctAnswers[nextPosition] || !inputRefs.current[nextPosition])
 	) {
+		console.log(`Skipping locked cell at ${nextPosition}.`);
 		const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-		if (focusDirection === "across") {
-			nextPosition =
-				direction === "forward"
+		nextPosition =
+			focusDirection === "across"
+				? direction === "forward"
 					? `${nextRow}-${nextCol + 1}`
-					: `${nextRow}-${nextCol - 1}`;
-		} else {
-			nextPosition =
-				direction === "forward"
-					? `${nextRow + 1}-${nextCol}`
-					: `${nextRow - 1}-${nextCol}`;
-		}
+					: `${nextRow}-${nextCol - 1}`
+				: direction === "forward"
+				? `${nextRow + 1}-${nextCol}`
+				: `${nextRow - 1}-${nextCol}`;
 	}
 
+	// If no valid cell was found in the current direction, switch direction
 	if (
-		isPositionValid(nextPosition, levels[currentLevel].grid) &&
-		inputRefs.current[nextPosition]
+		!isPositionValid(nextPosition, levels[currentLevel].grid) ||
+		!inputRefs.current[nextPosition]
 	) {
-		inputRefs.current[nextPosition].focus();
-	} else {
+		console.log(
+			`No valid cell to focus on in the ${focusDirection} direction. Switching direction.`
+		);
+
 		const newDirection = focusDirection === "across" ? "down" : "across";
 		nextPosition = getNextPosition(row, col, newDirection, direction);
 
+		// Try to move focus in the new direction
 		while (
 			isPositionValid(nextPosition, levels[currentLevel].grid) &&
-			correctAnswers[nextPosition]
+			(correctAnswers[nextPosition] || !inputRefs.current[nextPosition])
 		) {
+			console.log(`Skipping locked cell at ${nextPosition}.`);
 			const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-			if (newDirection === "across") {
-				nextPosition =
-					direction === "forward"
+			nextPosition =
+				newDirection === "across"
+					? direction === "forward"
 						? `${nextRow}-${nextCol + 1}`
-						: `${nextRow}-${nextCol - 1}`;
-			} else {
-				nextPosition =
-					direction === "forward" ? `${nextRow + 1}` : `${nextRow - 1}`;
-			}
+						: `${nextRow}-${nextCol - 1}`
+					: direction === "forward"
+					? `${nextRow + 1}-${nextCol}`
+					: `${nextRow - 1}-${nextCol}`;
 		}
 
 		if (
 			isPositionValid(nextPosition, levels[currentLevel].grid) &&
 			inputRefs.current[nextPosition]
 		) {
+			console.log(
+				`Focusing on cell at ${nextPosition} in the ${newDirection} direction.`
+			);
 			inputRefs.current[nextPosition].focus();
-			setFocusDirection(newDirection);
+		} else {
+			console.log(
+				`No valid cell to focus on in the ${newDirection} direction.`
+			);
 		}
+	} else {
+		console.log(
+			`Focusing on cell at ${nextPosition} in the ${focusDirection} direction.`
+		);
+		inputRefs.current[nextPosition].focus();
 	}
 };
 
@@ -76,49 +89,26 @@ export const moveFocusAndDelete = (
 	levels,
 	currentLevel
 ) => {
-	let [row, col] = currentPosition.split("-").map(Number);
+	const [row, col] = currentPosition.split("-").map(Number);
 
-	const deleteCharacter = (pos) => {
-		setGuesses((prevGuesses) => {
-			const updatedGuesses = { ...prevGuesses };
-			delete updatedGuesses[pos];
-			return updatedGuesses;
-		});
-	};
+	// Delete the current character
+	setGuesses((prevGuesses) => {
+		const updatedGuesses = { ...prevGuesses };
+		delete updatedGuesses[currentPosition];
+		return updatedGuesses;
+	});
 
-	const moveFocus = (newPosition) => {
-		if (
-			isPositionValid(newPosition, levels[currentLevel].grid) &&
-			inputRefs.current[newPosition]
-		) {
-			inputRefs.current[newPosition].focus();
-			return newPosition;
-		}
-		return null;
-	};
+	// Determine the previous position
+	const previousPosition =
+		focusDirection === "across" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
 
-	const directions =
-		focusDirection === "across" ? ["left", "up"] : ["up", "left"];
-	for (let direction of directions) {
-		let nextPosition =
-			direction === "left" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
-		while (isPositionValid(nextPosition, levels[currentLevel].grid)) {
-			const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-			if (!correctAnswers[nextPosition] && guesses[nextPosition]) {
-				deleteCharacter(nextPosition);
-				const newPos = moveFocus(nextPosition);
-				if (newPos) {
-					row = nextRow;
-					col = nextCol;
-				} else {
-					break;
-				}
-			} else {
-				break;
-			}
-			nextPosition =
-				direction === "left" ? `${row}-${col - 1}` : `${row - 1}-${col}`;
-		}
+	// Check if the previous position is valid and focus on it
+	if (
+		isPositionValid(previousPosition, levels[currentLevel].grid) &&
+		inputRefs.current[previousPosition] &&
+		!correctAnswers[previousPosition]
+	) {
+		inputRefs.current[previousPosition].focus();
 	}
 };
 
