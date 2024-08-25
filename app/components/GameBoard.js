@@ -327,13 +327,6 @@ const GameBoard = () => {
 						autoCorrect={false}
 						keyboardType="default"
 						editable={!correctAnswers[position]} // Correct answers should not be editable
-						onLayout={() => {
-							console.log(
-								`Cell ${position} is ${
-									!correctAnswers[position] ? "editable" : "locked"
-								}.`
-							);
-						}}
 					/>
 				</View>
 			);
