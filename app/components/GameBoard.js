@@ -111,6 +111,7 @@ const GameBoard = () => {
 
 	const handleInputChange = (position, text) => {
 		const isCorrect = correctAnswers[position];
+		const newGuess = text.toUpperCase();
 
 		if (isCorrect) {
 			console.log(
@@ -119,10 +120,7 @@ const GameBoard = () => {
 			return; // Don't allow changes to correct answers
 		}
 
-		console.log(
-			`Input change on cell at position ${position}. New guess: ${text}`
-		);
-		const newGuess = text.toUpperCase();
+		console.log(`User entered the letter ${newGuess} at position ${position}`);
 
 		if (newGuess === "") {
 			setGuesses((prevGuesses) => {
@@ -204,10 +202,11 @@ const GameBoard = () => {
 		if (lastUpdatedPosition) {
 			const [lastRow, lastCol] = lastUpdatedPosition.split("-").map(Number);
 
-			// Determine the focus direction based on the difference in row or column
 			if (row !== lastRow) {
+				console.log("Shifting focus down due to manual entry");
 				setFocusDirection("down");
 			} else if (col !== lastCol) {
+				console.log("Shifting focus right due to manual entry");
 				setFocusDirection("across");
 			}
 		}
@@ -219,7 +218,7 @@ const GameBoard = () => {
 			console.log(
 				`Focus attempted on locked cell at position ${position}. Blurring.`
 			);
-			inputRefs.current[position].blur(); // Remove focus immediately from correct answers
+			inputRefs.current[position].blur();
 		} else {
 			console.log(`Focus allowed on editable cell at position ${position}.`);
 			if (guesses[position]) {
@@ -235,9 +234,25 @@ const GameBoard = () => {
 
 	const handleTouchStart = (clueKey, e) => {
 		e.stopPropagation();
+		console.log("User tapped a cell");
 		setCurrentClueKey(clueKey);
 		setCurrentClueUrl(cluePaths[clueKey]);
 		setShowClueModal(true);
+
+		const [row, col] = clueKey.split("-").map(Number);
+		const [lastRow, lastCol] = lastUpdatedPosition
+			? lastUpdatedPosition.split("-").map(Number)
+			: [];
+
+		if (lastUpdatedPosition) {
+			if (row !== lastRow) {
+				console.log("Shifting focus down due to manual entry");
+				setFocusDirection("down");
+			} else if (col !== lastCol) {
+				console.log("Shifting focus right due to manual entry");
+				setFocusDirection("across");
+			}
+		}
 	};
 
 	const clearStorageForLevel = async (level) => {

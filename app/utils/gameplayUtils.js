@@ -16,14 +16,14 @@ export const getNextPosition = (row, col, direction, moveDirection) => {
 // Function to check if a position is valid (inside the grid and not empty)
 const isPositionValid = (position, grid) => {
 	const [row, col] = position.split("-").map(Number);
-	return (
-		row >= 0 &&
-		row < grid.length &&
-		col >= 0 &&
-		col < grid[row].length &&
-		grid[row][col] &&
-		!grid[row][col].empty
-	);
+
+	// Check boundaries
+	if (row >= grid.length || row < 0 || col >= grid[row].length || col < 0) {
+		return false;
+	}
+
+	// The cell must not be empty and must not be a clue cell
+	return !grid[row][col].empty && !grid[row][col].clue;
 };
 
 // Function to move focus based on the current position and direction
@@ -39,10 +39,11 @@ export const moveFocus = (
 	let [row, col] = currentPosition.split("-").map(Number);
 	let nextPosition = getNextPosition(row, col, focusDirection, direction);
 
-	// Continue moving focus in the current direction until a valid cell is found
+	// Continue moving focus in the current direction within the same word
 	while (
 		isPositionValid(nextPosition, levels[currentLevel].grid) &&
-		(!inputRefs.current[nextPosition] || correctAnswers[nextPosition])
+		(!inputRefs.current[nextPosition] || // Cell is not focusable
+			correctAnswers[nextPosition]) // Skip over correct letters
 	) {
 		const [nextRow, nextCol] = nextPosition.split("-").map(Number);
 		nextPosition =
@@ -55,11 +56,16 @@ export const moveFocus = (
 				: `${nextRow - 1}-${nextCol}`;
 	}
 
-	// Focus the next valid cell or stop if there's no more valid cell in that direction
+	// Only move focus if the next position is valid
 	if (
 		isPositionValid(nextPosition, levels[currentLevel].grid) &&
 		inputRefs.current[nextPosition]
 	) {
+		if (focusDirection === "across") {
+			console.log("Setting focus across");
+		} else {
+			console.log("Setting focus down");
+		}
 		inputRefs.current[nextPosition].focus();
 	}
 };
