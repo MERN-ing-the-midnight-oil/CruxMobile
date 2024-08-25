@@ -265,6 +265,7 @@ const GameBoard = () => {
 	};
 
 	const clearGuesses = async () => {
+		console.log("Erase All and Start Over button used. Letters cleared."); // Log the action
 		await clearStorageForLevel(currentLevel);
 		setGuesses({});
 		setCorrectAnswers({});
