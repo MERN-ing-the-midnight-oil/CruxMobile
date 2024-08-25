@@ -1,5 +1,32 @@
 import { getClueCellStyle } from "./clueUtils";
 
+// Function to calculate the next position based on the current direction
+export const getNextPosition = (row, col, direction, moveDirection) => {
+	if (direction === "across") {
+		return moveDirection === "forward"
+			? `${row}-${col + 1}`
+			: `${row}-${col - 1}`;
+	} else {
+		return moveDirection === "forward"
+			? `${row + 1}-${col}`
+			: `${row - 1}-${col}`;
+	}
+};
+
+// Function to check if a position is valid (inside the grid and not empty)
+const isPositionValid = (position, grid) => {
+	const [row, col] = position.split("-").map(Number);
+	return (
+		row >= 0 &&
+		row < grid.length &&
+		col >= 0 &&
+		col < grid[row].length &&
+		grid[row][col] &&
+		!grid[row][col].empty
+	);
+};
+
+// Function to move focus based on the current position and direction
 export const moveFocus = (
 	currentPosition,
 	direction,
@@ -12,12 +39,11 @@ export const moveFocus = (
 	let [row, col] = currentPosition.split("-").map(Number);
 	let nextPosition = getNextPosition(row, col, focusDirection, direction);
 
-	// Try to move focus in the current direction
+	// Continue moving focus in the current direction until a valid cell is found
 	while (
 		isPositionValid(nextPosition, levels[currentLevel].grid) &&
-		(correctAnswers[nextPosition] || !inputRefs.current[nextPosition])
+		(!inputRefs.current[nextPosition] || correctAnswers[nextPosition])
 	) {
-		console.log(`Skipping locked cell at ${nextPosition}.`);
 		const [nextRow, nextCol] = nextPosition.split("-").map(Number);
 		nextPosition =
 			focusDirection === "across"
@@ -29,56 +55,16 @@ export const moveFocus = (
 				: `${nextRow - 1}-${nextCol}`;
 	}
 
-	// If no valid cell was found in the current direction, switch direction
+	// Focus the next valid cell or stop if there's no more valid cell in that direction
 	if (
-		!isPositionValid(nextPosition, levels[currentLevel].grid) ||
-		!inputRefs.current[nextPosition]
+		isPositionValid(nextPosition, levels[currentLevel].grid) &&
+		inputRefs.current[nextPosition]
 	) {
-		console.log(
-			`No valid cell to focus on in the ${focusDirection} direction. Switching direction.`
-		);
-
-		const newDirection = focusDirection === "across" ? "down" : "across";
-		nextPosition = getNextPosition(row, col, newDirection, direction);
-
-		// Try to move focus in the new direction
-		while (
-			isPositionValid(nextPosition, levels[currentLevel].grid) &&
-			(correctAnswers[nextPosition] || !inputRefs.current[nextPosition])
-		) {
-			console.log(`Skipping locked cell at ${nextPosition}.`);
-			const [nextRow, nextCol] = nextPosition.split("-").map(Number);
-			nextPosition =
-				newDirection === "across"
-					? direction === "forward"
-						? `${nextRow}-${nextCol + 1}`
-						: `${nextRow}-${nextCol - 1}`
-					: direction === "forward"
-					? `${nextRow + 1}-${nextCol}`
-					: `${nextRow - 1}-${nextCol}`;
-		}
-
-		if (
-			isPositionValid(nextPosition, levels[currentLevel].grid) &&
-			inputRefs.current[nextPosition]
-		) {
-			console.log(
-				`Focusing on cell at ${nextPosition} in the ${newDirection} direction.`
-			);
-			inputRefs.current[nextPosition].focus();
-		} else {
-			console.log(
-				`No valid cell to focus on in the ${newDirection} direction.`
-			);
-		}
-	} else {
-		console.log(
-			`Focusing on cell at ${nextPosition} in the ${focusDirection} direction.`
-		);
 		inputRefs.current[nextPosition].focus();
 	}
 };
 
+// Function to move focus and delete the current character
 export const moveFocusAndDelete = (
 	currentPosition,
 	focusDirection,
@@ -110,27 +96,4 @@ export const moveFocusAndDelete = (
 	) {
 		inputRefs.current[previousPosition].focus();
 	}
-};
-
-const getNextPosition = (row, col, direction, moveDirection) => {
-	if (direction === "across") {
-		return moveDirection === "forward"
-			? `${row}-${col + 1}`
-			: `${row}-${col - 1}`;
-	} else {
-		return moveDirection === "forward"
-			? `${row + 1}-${col}`
-			: `${row - 1}-${col}`;
-	}
-};
-
-const isPositionValid = (position, grid) => {
-	const [row, col] = position.split("-").map(Number);
-	if (row >= grid.length || row < 0) {
-		return false;
-	}
-	if (col >= grid[row].length || col < 0) {
-		return false;
-	}
-	return !grid[row][col].empty;
 };

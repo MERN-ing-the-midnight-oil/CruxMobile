@@ -199,17 +199,27 @@ const GameBoard = () => {
 
 	const handleFocus = (position) => {
 		const isCorrect = correctAnswers[position];
-		const isEditable = !correctAnswers[position];
+		const [row, col] = position.split("-").map(Number);
+
+		if (lastUpdatedPosition) {
+			const [lastRow, lastCol] = lastUpdatedPosition.split("-").map(Number);
+
+			// Determine the focus direction based on the difference in row or column
+			if (row !== lastRow) {
+				setFocusDirection("down");
+			} else if (col !== lastCol) {
+				setFocusDirection("across");
+			}
+		}
 
 		console.log(`Attempting to focus on cell at position ${position}.`);
 		console.log(` - Is cell correct: ${isCorrect ? "Yes" : "No"}`);
-		console.log(` - Is cell editable: ${isEditable ? "Yes" : "No"}`);
 
 		if (isCorrect) {
 			console.log(
 				`Focus attempted on locked cell at position ${position}. Blurring.`
 			);
-			inputRefs.current[position].blur(); // Remove focus immediately
+			inputRefs.current[position].blur(); // Remove focus immediately from correct answers
 		} else {
 			console.log(`Focus allowed on editable cell at position ${position}.`);
 			if (guesses[position]) {
