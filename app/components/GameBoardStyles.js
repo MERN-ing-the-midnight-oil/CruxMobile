@@ -30,23 +30,45 @@ const gameBoardStyles = StyleSheet.create({
 		marginBottom: 10,
 	},
 	gameContainer: {
-		borderWidth: 4,
 		borderColor: "#000",
 		padding: 2,
 		backgroundColor: "#fff",
 	},
-
 	pickerModal: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		backgroundColor: "rgba(0,0,0,0.5)",
-		width: "95%", // Full width
+		backgroundColor: "rgba(0, 0, 0, 0.5)",
+	},
+	pickerWrapper: {
+		width: "90%",
+		backgroundColor: "#f8f9fa",
+		borderRadius: 10,
+		padding: 20,
+		alignItems: "center",
+	},
+	pickerTitle: {
+		fontSize: width * 0.06,
+		fontWeight: "bold",
+		textAlign: "center",
+		color: "#333",
+		marginBottom: 20,
 	},
 	picker: {
-		width: "90%", // 90% of the screen width
-		backgroundColor: "#fff",
-		borderRadius: 10,
+		width: "100%",
+		height: 50,
+		marginBottom: 20,
+	},
+	closeButton: {
+		backgroundColor: "#007bff",
+		paddingVertical: 10,
+		paddingHorizontal: 20,
+		borderRadius: 5,
+	},
+	closeButtonText: {
+		color: "#fff",
+		fontWeight: "bold",
+		fontSize: width * 0.05,
 	},
 	footer: {
 		marginVertical: 20,

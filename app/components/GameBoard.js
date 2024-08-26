@@ -17,7 +17,6 @@ import cliches from "../data/cliches";
 import colorsandshapes from "../data/colorsandshapes";
 import easylevel from "../data/easylevel";
 import homophones from "../data/homophones";
-
 import { moveFocus, moveFocusAndDelete } from "../utils/gameplayUtils";
 import {
 	getClueCellStyle,
@@ -362,31 +361,44 @@ const GameBoard = () => {
 					visible={showPickerModal}
 					onRequestClose={() => setShowPickerModal(false)}>
 					<View style={styles.pickerModal}>
-						<Picker
-							selectedValue={currentLevel}
-							onValueChange={(value) => {
-								if (value) {
-									handleLevelChange(value);
-								}
-							}}
-							style={styles.picker}>
-							<Picker.Item
-								label="Select Puzzle"
-								value=""
-								color="#999"
-							/>
-							{Object.keys(levels).map((level) => (
+						<View style={styles.pickerWrapper}>
+							<Text style={styles.pickerTitle}>Select Your Puzzle</Text>
+							<Picker
+								selectedValue={currentLevel}
+								onValueChange={(value) => {
+									if (value) {
+										handleLevelChange(value);
+									}
+								}}
+								style={styles.picker}>
 								<Picker.Item
-									key={level}
-									label={levels[level].title}
-									value={level}
+									label="Select Puzzle"
+									value=""
+									color="#999"
 								/>
-							))}
-						</Picker>
-						<Button
-							title="Close"
-							onPress={() => setShowPickerModal(false)}
-						/>
+								<Picker.Item
+									label="Easy Level"
+									value="easylevel"
+								/>
+								<Picker.Item
+									label="Colors and Shapes"
+									value="colorsandshapes"
+								/>
+								<Picker.Item
+									label="Cliches"
+									value="cliches"
+								/>
+								<Picker.Item
+									label="Homophones"
+									value="homophones"
+								/>
+							</Picker>
+							<TouchableOpacity
+								style={styles.closeButton}
+								onPress={() => setShowPickerModal(false)}>
+								<Text style={styles.closeButtonText}>Close</Text>
+							</TouchableOpacity>
+						</View>
 					</View>
 				</Modal>
 			)}
@@ -416,6 +428,7 @@ const GameBoard = () => {
 					</View>
 				)}
 			/>
+
 			{showClueModal && (
 				<Modal
 					transparent={true}
