@@ -1,43 +1,23 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, Button, View } from 'react-native';
-import GameBoard from './components/GameBoard';
+import { View } from 'react-native';
 import Introduction from './components/Introduction';
+import GameBoard from './components/GameBoard';
 
 const App = () => {
-	const [showIntroduction, setShowIntroduction] = useState(true);
+    const [showIntroduction, setShowIntroduction] = useState(true);
 
-	const handleDismissIntroduction = () => {
-		setShowIntroduction(false);
-	};
+    const handleDismissIntroduction = () => {
+        setShowIntroduction(false);
+    };
 
-	return (
-		<SafeAreaView style={styles.container}>
-			{showIntroduction ? (
-				<View style={styles.introductionContainer}>
-					<Introduction />
-					<Button title="Got it!" onPress={handleDismissIntroduction} />
-				</View>
-			) : (
-				<GameBoard />
-			)}
-		</SafeAreaView>
-	);
+    return (
+        <View style={{ flex: 1 }}>
+            {showIntroduction && (
+                <Introduction onDismiss={handleDismissIntroduction} />
+            )}
+            {!showIntroduction && <GameBoard />}
+        </View>
+    );
 };
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		width: '100%',
-		justifyContent: 'center',
-		alignItems: 'center',
-		padding: 0,
-		margin: 0,
-		backgroundColor: '#f8f9fa', // Light background color to match Introduction
-	},
-	introductionContainer: {
-		marginBottom: 20,
-		width: '100%',
-	},
-});
 
 export default App;
