@@ -5,18 +5,18 @@ const { width } = Dimensions.get("window");
 
 const gameBoardStyles = StyleSheet.create({
 	container: {
-		flex: 1,
-		width: "100%",
-		justifyContent: "center",
-		alignItems: "center",
+		flex: 1, // Ensures the container takes up the full screen height
+		justifyContent: "center", // Centers content vertically
+		alignItems: "center", // Centers content horizontally
 		padding: 0,
 		margin: 0,
 		backgroundColor: "#f8f9fa", // Light background color
 	},
 	header: {
+		justifyContent: "center", // Center vertically
+		alignItems: "center", // Center horizontally
 		padding: 10,
 		width: "100%",
-		alignItems: "center",
 	},
 	levelTitle: {
 		fontSize: 18,
@@ -41,25 +41,29 @@ const gameBoardStyles = StyleSheet.create({
 		backgroundColor: "rgba(0, 0, 0, 0.5)",
 	},
 	pickerWrapper: {
-		width: "90%",
-		backgroundColor: "#f8f9fa",
+		backgroundColor: "#fff",
 		borderRadius: 10,
 		padding: 20,
+		width: "80%",
+		height: "60%",
 		alignItems: "center",
 	},
 	pickerTitle: {
-		fontSize: width * 0.06,
-		fontWeight: "bold",
-		textAlign: "center",
-		color: "#333",
-		marginBottom: 20,
+		fontSize: 18,
+		marginBottom: 10,
+	},
+	pickerContainer: {
+		width: "100%",
+		height: "80%", // Set a fixed height to properly contain the picker options
+		justifyContent: "center",
+		overflow: "hidden", // Ensure options don't overflow the container
 	},
 	picker: {
 		width: "100%",
-		height: 50,
-		marginBottom: 20,
+		height: "100%", // Ensure the picker fills the container
 	},
 	closeButton: {
+		marginTop: 20, // Add space between the picker and the button
 		backgroundColor: "#007bff",
 		paddingVertical: 10,
 		paddingHorizontal: 20,
@@ -67,8 +71,7 @@ const gameBoardStyles = StyleSheet.create({
 	},
 	closeButtonText: {
 		color: "#fff",
-		fontWeight: "bold",
-		fontSize: width * 0.05,
+		fontSize: 16,
 	},
 	footer: {
 		marginVertical: 20,

@@ -108,6 +108,85 @@ const GameBoard = () => {
 		setShowPickerModal(false);
 	};
 
+	const clearStorageForLevel = async (level) => {
+		try {
+			await AsyncStorage.removeItem(`guesses-${level}`);
+			await AsyncStorage.removeItem(`correctAnswers-${level}`);
+		} catch (e) {
+			console.error("Failed to clear AsyncStorage", e);
+		}
+	};
+
+	const clearGuesses = async () => {
+		console.log("Erase All and Start Over button used. Letters cleared."); // Log the action
+		await clearStorageForLevel(currentLevel);
+		setGuesses({});
+		setCorrectAnswers({});
+	};
+
+	const renderCell = (cell, rowIndex, colIndex) => {
+		const position = `${rowIndex}-${colIndex}`;
+		const cellSize = gameContainerWidth / 6;
+		let cellStyle = {
+			borderColor: "#ccc",
+			borderWidth: 1,
+			width: cellSize,
+			height: cellSize,
+		};
+
+		if (cell.clue) {
+			cellStyle = {
+				...cellStyle,
+				...getClueCellStyle(levels[currentLevel].grid, rowIndex, colIndex),
+			};
+			return (
+				<TouchableOpacity
+					key={position}
+					style={[styles.clueCell, cellStyle]}
+					onPressIn={(e) => handleTouchStart(cell.clue, e)}
+				/>
+			);
+		} else if (cell.empty) {
+			return (
+				<View
+					key={position}
+					style={[styles.emptyCell, cellStyle]}
+				/>
+			);
+		} else {
+			const isCorrectGuess =
+				guesses[position] && guesses[position] === cell.letter;
+			if (isCorrectGuess) {
+				cellStyle = { ...cellStyle, ...styles.correctGuessCell };
+			}
+
+			return (
+				<View
+					key={position}
+					style={[styles.letterCell, cellStyle]}>
+					<TextInput
+						ref={(el) => (inputRefs.current[position] = el)}
+						maxLength={1}
+						value={guesses[position] || ""}
+						onChangeText={(text) => {
+							handleInputChange(position, text);
+						}}
+						onKeyPress={({ nativeEvent: { key } }) =>
+							handleKeyPress(position, key)
+						}
+						onFocus={() => handleFocus(position)}
+						onBlur={() => handleBlur(position)}
+						style={styles.input}
+						autoCapitalize="characters"
+						autoCorrect={false}
+						keyboardType="default"
+						editable={!correctAnswers[position]} // Correct answers should not be editable
+					/>
+				</View>
+			);
+		}
+	};
+
 	const handleInputChange = (position, text) => {
 		const isCorrect = correctAnswers[position];
 		const newGuess = text.toUpperCase();
@@ -254,106 +333,52 @@ const GameBoard = () => {
 		}
 	};
 
-	const clearStorageForLevel = async (level) => {
-		try {
-			await AsyncStorage.removeItem(`guesses-${level}`);
-			await AsyncStorage.removeItem(`correctAnswers-${level}`);
-		} catch (e) {
-			console.error("Failed to clear AsyncStorage", e);
-		}
-	};
-
-	const clearGuesses = async () => {
-		console.log("Erase All and Start Over button used. Letters cleared."); // Log the action
-		await clearStorageForLevel(currentLevel);
-		setGuesses({});
-		setCorrectAnswers({});
-	};
-
-	const renderCell = (cell, rowIndex, colIndex) => {
-		const position = `${rowIndex}-${colIndex}`;
-		const cellSize = gameContainerWidth / 6;
-		let cellStyle = {
-			borderColor: "#ccc",
-			borderWidth: 1,
-			width: cellSize,
-			height: cellSize,
-		};
-
-		if (cell.clue) {
-			cellStyle = {
-				...cellStyle,
-				...getClueCellStyle(levels[currentLevel].grid, rowIndex, colIndex),
-			};
-			return (
-				<TouchableOpacity
-					key={position}
-					style={[styles.clueCell, cellStyle]}
-					onPressIn={(e) => handleTouchStart(cell.clue, e)}
-				/>
-			);
-		} else if (cell.empty) {
-			return (
+	return (
+		<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+			{!currentLevel && (
 				<View
-					key={position}
-					style={[styles.emptyCell, cellStyle]}
-				/>
-			);
-		} else {
-			const isCorrectGuess =
-				guesses[position] && guesses[position] === cell.letter;
-			if (isCorrectGuess) {
-				cellStyle = { ...cellStyle, ...styles.correctGuessCell };
-			}
-
-			return (
-				<View
-					key={position}
-					style={[styles.letterCell, cellStyle]}>
-					<TextInput
-						ref={(el) => (inputRefs.current[position] = el)}
-						maxLength={1}
-						value={guesses[position] || ""}
-						onChangeText={(text) => {
-							handleInputChange(position, text);
-						}}
-						onKeyPress={({ nativeEvent: { key } }) =>
-							handleKeyPress(position, key)
-						}
-						onFocus={() => handleFocus(position)}
-						onBlur={() => handleBlur(position)}
-						style={styles.input}
-						autoCapitalize="characters"
-						autoCorrect={false}
-						keyboardType="default"
-						editable={!correctAnswers[position]} // Correct answers should not be editable
+					style={{
+						justifyContent: "center",
+						alignItems: "center",
+						backgroundColor: "orange", // Set the background color to orange for testing
+						padding: 20,
+					}}>
+					<Button
+						title="Select Level"
+						onPress={() => setShowPickerModal(true)}
 					/>
 				</View>
-			);
-		}
-	};
-
-	const renderHeader = () => (
-		<View style={styles.header}>
-			<Button
-				title="Select Level"
-				onPress={() => setShowPickerModal(true)}
-			/>
-			{currentLevel && (
-				<>
-					<Text style={styles.levelTitle}>{levels[currentLevel].title}</Text>
-					{levels[currentLevel].secondaryTitle && (
-						<Text style={styles.secondaryTitle}>
-							{levels[currentLevel].secondaryTitle}
-						</Text>
-					)}
-				</>
 			)}
-		</View>
-	);
 
-	return (
-		<View style={styles.container}>
+			{currentLevel && (
+				<KeyboardAwareFlatList
+					data={levels[currentLevel]?.grid || []}
+					renderItem={({ item: row, index: rowIndex }) => (
+						<View
+							key={rowIndex}
+							style={{ flexDirection: "row", width: "100%" }}>
+							{row.map((cell, colIndex) =>
+								renderCell(cell, rowIndex, colIndex)
+							)}
+						</View>
+					)}
+					keyExtractor={(item, index) => index.toString()}
+					contentContainerStyle={styles.gameContainer}
+					onLayout={(event) => {
+						const { width } = event.nativeEvent.layout;
+						setGameContainerWidth(width);
+					}}
+					ListFooterComponent={() => (
+						<View style={[styles.footer, !currentLevel && styles.hidden]}>
+							<Button
+								title="Erase All and Start Over"
+								onPress={clearGuesses}
+							/>
+						</View>
+					)}
+				/>
+			)}
+
 			{showPickerModal && (
 				<Modal
 					transparent={true}
@@ -363,36 +388,38 @@ const GameBoard = () => {
 					<View style={styles.pickerModal}>
 						<View style={styles.pickerWrapper}>
 							<Text style={styles.pickerTitle}>Select Your Puzzle</Text>
-							<Picker
-								selectedValue={currentLevel}
-								onValueChange={(value) => {
-									if (value) {
-										handleLevelChange(value);
-									}
-								}}
-								style={styles.picker}>
-								<Picker.Item
-									label="Select Puzzle"
-									value=""
-									color="#999"
-								/>
-								<Picker.Item
-									label="Easy Level"
-									value="easylevel"
-								/>
-								<Picker.Item
-									label="Colors and Shapes"
-									value="colorsandshapes"
-								/>
-								<Picker.Item
-									label="Cliches"
-									value="cliches"
-								/>
-								<Picker.Item
-									label="Homophones"
-									value="homophones"
-								/>
-							</Picker>
+							<View style={styles.pickerContainer}>
+								<Picker
+									selectedValue={currentLevel}
+									onValueChange={(value) => {
+										if (value) {
+											handleLevelChange(value);
+										}
+									}}
+									style={styles.picker}>
+									<Picker.Item
+										label="Select Puzzle"
+										value=""
+										color="#999"
+									/>
+									<Picker.Item
+										label="Easy Level"
+										value="easylevel"
+									/>
+									<Picker.Item
+										label="Colors and Shapes"
+										value="colorsandshapes"
+									/>
+									<Picker.Item
+										label="Cliches"
+										value="cliches"
+									/>
+									<Picker.Item
+										label="Homophones"
+										value="homophones"
+									/>
+								</Picker>
+							</View>
 							<TouchableOpacity
 								style={styles.closeButton}
 								onPress={() => setShowPickerModal(false)}>
@@ -402,32 +429,6 @@ const GameBoard = () => {
 					</View>
 				</Modal>
 			)}
-
-			<KeyboardAwareFlatList
-				ListHeaderComponent={renderHeader}
-				data={levels[currentLevel]?.grid || []}
-				renderItem={({ item: row, index: rowIndex }) => (
-					<View
-						key={rowIndex}
-						style={{ flexDirection: "row", width: "100%" }}>
-						{row.map((cell, colIndex) => renderCell(cell, rowIndex, colIndex))}
-					</View>
-				)}
-				keyExtractor={(item, index) => index.toString()}
-				contentContainerStyle={styles.gameContainer}
-				onLayout={(event) => {
-					const { width } = event.nativeEvent.layout;
-					setGameContainerWidth(width);
-				}}
-				ListFooterComponent={() => (
-					<View style={[styles.footer, !currentLevel && styles.hidden]}>
-						<Button
-							title="Erase All and Start Over"
-							onPress={clearGuesses}
-						/>
-					</View>
-				)}
-			/>
 
 			{showClueModal && (
 				<Modal
